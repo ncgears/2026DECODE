@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  * Centralized configuration for drive, sensors, vision, controls, and telemetry.
  * All items are grouped so you can find/tune them quickly.
  */
+@SuppressWarnings({"unused","spelling"})
 public final class Constants {
 
     /** Drivebase and TeleOp drive behavior. */
