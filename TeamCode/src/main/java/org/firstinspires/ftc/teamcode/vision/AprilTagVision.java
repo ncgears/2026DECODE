@@ -1,0 +1,28 @@
+package org.firstinspires.ftc.teamcode.vision;
+
+import android.util.Size;
+
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
+public class AprilTagVision {
+    public final VisionPortal portal;
+    public final AprilTagProcessor atag;
+
+    public AprilTagVision(HardwareMap hw) {
+        atag = new AprilTagProcessor.Builder()
+                .setTagFamily(Constants.Vision.APRILTAG_FAMILY)
+                .setTagSizeMeters(Constants.Vision.TAG_SIZE_M)
+                .build();
+
+        WebcamName webcam = hw.get(WebcamName.class, Constants.Vision.WEBCAM_NAME);
+        portal = new VisionPortal.Builder()
+                .setCamera(webcam)
+                .addProcessor(atag)
+                .setCameraResolution(new Size(Constants.Vision.STREAM_WIDTH, Constants.Vision.STREAM_HEIGHT))
+                .build();
+    }
+}
