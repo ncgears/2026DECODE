@@ -63,7 +63,7 @@ public class TeleOp_Drive extends OpMode {
         // Read sticks
         double lx = g1.left_stick_x;   // + right
         double ly = -g1.left_stick_y;  // up = forward
-        double rx = Constants.Controls.ROTATION_ON_RIGHT_STICK_X ? g1.right_stick_x : g1.left_stick_x;
+        double rx = Constants.Drive.ROTATION_RIGHT_STICK_X ? g1.right_stick_x : g1.left_stick_x;
 
         // Shape
         lx = Shaping.shapeTranslate(lx);

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 import android.util.Size;
-
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.constants.Constants;
@@ -10,6 +9,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+/** Simple AprilTag pipeline wrapper (user's corrected version). */
 public class AprilTagVision {
     public final VisionPortal portal;
     public final AprilTagLibrary alib;
@@ -23,7 +23,7 @@ public class AprilTagVision {
                 .setTagLibrary(alib)
                 .build();
 
-        WebcamName webcam = hw.get(WebcamName.class, Constants.Vision.WEBCAM_NAME);
+        WebcamName webcam = hw.get(WebcamName.class, Constants.Vision.MOTIF_CAM_NAME);
         portal = new VisionPortal.Builder()
                 .setCamera(webcam)
                 .addProcessor(atag)

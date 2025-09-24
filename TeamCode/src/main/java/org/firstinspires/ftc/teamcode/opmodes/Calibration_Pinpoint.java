@@ -9,20 +9,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 
+/** Live-tune and persist Pinpoint calibration to JSON on the RC. */
 @TeleOp(name = "Calibration_Pinpoint", group = "Tuning")
 public class Calibration_Pinpoint extends OpMode {
     private TelemetryUtil T;
     private double trackWidth = Constants.Pinpoint.TRACK_WIDTH_MM;
-    private double fwdOffset = Constants.Pinpoint.FORWARD_OFFSET_MM;
+    private double fwdOffset  = Constants.Pinpoint.FORWARD_OFFSET_MM;
 
     @Override public void init() { T = new TelemetryUtil(this); loadJson(); }
 
     @Override public void loop() {
         double step = gamepad1.left_bumper ? 0.5 : (gamepad1.right_bumper ? 5.0 : 1.0);
-        if (gamepad1.dpad_left) trackWidth -= step;
+        if (gamepad1.dpad_left)  trackWidth -= step;
         if (gamepad1.dpad_right) trackWidth += step;
-        if (gamepad1.dpad_down) fwdOffset -= step;
-        if (gamepad1.dpad_up) fwdOffset += step;
+        if (gamepad1.dpad_down)  fwdOffset  -= step;
+        if (gamepad1.dpad_up)    fwdOffset  += step;
 
         if (gamepad1.a) saveJson();
         if (gamepad1.b) loadJson();
@@ -48,7 +49,6 @@ public class Calibration_Pinpoint extends OpMode {
             telemetry.addData("ERR", e.getMessage());
         }
     }
-
     private void loadJson() {
         try {
             File f = new File(Constants.Pinpoint.CALIBRATION_JSON);
@@ -59,7 +59,7 @@ public class Calibration_Pinpoint extends OpMode {
             }
             JSONObject o = new JSONObject(sb.toString());
             trackWidth = o.getDouble("trackWidthMm");
-            fwdOffset = o.getDouble("forwardOffsetMm");
+            fwdOffset  = o.getDouble("forwardOffsetMm");
             Constants.Pinpoint.TRACK_WIDTH_MM = trackWidth;
             Constants.Pinpoint.FORWARD_OFFSET_MM = fwdOffset;
         } catch (Exception e) {

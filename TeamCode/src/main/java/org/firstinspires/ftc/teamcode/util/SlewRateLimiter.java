@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.util;
 
+/** Simple rate limiter (units per second) to smooth joystick commands. */
 public class SlewRateLimiter {
     private final double ratePerSec;
     private double last;
@@ -9,7 +10,6 @@ public class SlewRateLimiter {
         this.ratePerSec = Math.max(1e-9, ratePerSec);
         this.lastTimeNs = System.nanoTime();
     }
-
     public double calculate(double input) {
         long now = System.nanoTime();
         double dt = (now - lastTimeNs) / 1e9;
@@ -21,6 +21,5 @@ public class SlewRateLimiter {
         last += delta;
         return last;
     }
-
     public void reset(double value) { last = value; lastTimeNs = System.nanoTime(); }
 }

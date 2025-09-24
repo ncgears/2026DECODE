@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.hardware.lynx.LynxModule;
 import org.firstinspires.ftc.teamcode.constants.Constants;
 
+/** Basic mecanum drive: robot-centric power mapping + helpers. */
 public class DriveSubsystem {
     private final DcMotorEx fl, fr, rl, rr;
-
     public DriveSubsystem(HardwareMap hw) {
         fl = hw.get(DcMotorEx.class, Constants.Drive.FL);
         fr = hw.get(DcMotorEx.class, Constants.Drive.FR);
@@ -26,9 +26,8 @@ public class DriveSubsystem {
             rl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rr.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
-
-        DcMotor.ZeroPowerBehavior z = Constants.Drive.ZERO_POWER_BRAKE ?
-                DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT;
+        DcMotor.ZeroPowerBehavior z = Constants.Drive.ZERO_POWER_BRAKE
+                ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT;
         fl.setZeroPowerBehavior(z); fr.setZeroPowerBehavior(z); rl.setZeroPowerBehavior(z); rr.setZeroPowerBehavior(z);
 
         for (LynxModule hub : hw.getAll(LynxModule.class)) {
@@ -36,7 +35,7 @@ public class DriveSubsystem {
                     ? LynxModule.BulkCachingMode.AUTO : LynxModule.BulkCachingMode.OFF);
         }
     }
-
+    /** Robot-centric drive mapping (x: +right, y: +forward, rot: +CCW). */
     public void driveRobotCentric(double x, double y, double rot) {
         double flp = y + x + rot;
         double frp = y - x - rot;
@@ -46,4 +45,5 @@ public class DriveSubsystem {
                 Math.max(Math.abs(frp), Math.max(Math.abs(rlp), Math.abs(rrp)))));
         fl.setPower(flp / max); fr.setPower(frp / max); rl.setPower(rlp / max); rr.setPower(rrp / max);
     }
+    public void stop() { fl.setPower(0); fr.setPower(0); rl.setPower(0); rr.setPower(0); }
 }
