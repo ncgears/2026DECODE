@@ -81,7 +81,7 @@ public final class Constants {
         public static final String GREEN_DI  = "indexgreen";  // PNP HIGH when green detected at S1L
 
         public static final double POWER_FWD = 0.80;           // CR servo forward power
-        public static final boolean DIR_FORWARD_IS_POSITIVE = true; // flip if wiring requires
+        public static final boolean DIR_FORWARD_IS_POSITIVE = false; // flip if wiring requires
         public static final int DEBOUNCE_MS = 25;               // debounce for slot switch
         public static final int STEP_TIMEOUT_MS = 700;          // stop & flag jam if exceeded
         public static final boolean AUTO_ADVANCE_ON_DETECT = true; // auto-step when color seen at S1L
@@ -93,13 +93,15 @@ public final class Constants {
     public static final class Shooter {
         public static final String MOTOR_1 = "shooter1"; // left/right flywheels; electrically inverted pair
         public static final String MOTOR_2 = "shooter2";
+        public static final boolean MOTOR_1_INVERT = false; // flip if wiring requires
+        public static final boolean MOTOR_2_INVERT = !MOTOR_1_INVERT; // flip if wiring requires
         public static final String RAMP_SERVO = "ramp";  // feed ramp servo
 
         public static final double IDLE_POWER   = 0.15; // always-on idle to reduce inrush
         public static final double TARGET_POWER = 0.90; // open-loop target for shots
 
-        public static final double RAMP_RETRACTED = 0.0; // servo position for safe idle
-        public static final double RAMP_ENGAGED   = 1.0; // servo position to feed S0 into shooter
+        public static final double RAMP_RETRACTED = 0.7; // servo position for safe idle
+        public static final double RAMP_ENGAGED   = 0.5; // servo position to feed S0 into shooter
 
         public static final int HOLD_AFTER_RELEASE_MS = 2000; // keep flywheels up to speed after RT release
         public static final int INTER_SHOT_DWELL_MS   = 300;  // dwell between auto-advances (ms)

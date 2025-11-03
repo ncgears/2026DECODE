@@ -17,7 +17,8 @@ public class ShooterSubsystem {
     public ShooterSubsystem(HardwareMap hw) {
         m1 = hw.get(Motor.class, Constants.Shooter.MOTOR_1);
         m2 = hw.get(Motor.class, Constants.Shooter.MOTOR_2);
-        m2.setInverted(true); // invert second motor
+//        m1.setInverted(Constants.Shooter.MOTOR_1_INVERT); // invert motor
+//        m2.setInverted(Constants.Shooter.MOTOR_2_INVERT); // invert second motor
         m1.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
         m2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
         ramp = hw.get(Servo.class, Constants.Shooter.RAMP_SERVO);
@@ -47,8 +48,8 @@ public class ShooterSubsystem {
             double t = Math.min(1.0, powerRampTimer.ms() / (double) rampMs);
             currentPower = (1.0 - t) * currentPower + t * targetPower;
         }
-        m1.set(currentPower);
-        m2.set(currentPower);
+        m1.set(currentPower * (Constants.Shooter.MOTOR_1_INVERT ? -1.0 : 1.0));
+        m2.set(currentPower * (Constants.Shooter.MOTOR_2_INVERT ? -1.0 : 1.0));
     }
 
     public void setTargetPower(double p) {
