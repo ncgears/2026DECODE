@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.constants.Constants;
@@ -11,6 +12,7 @@ import java.io.FileWriter;
 
 /** Live-tune and persist Pinpoint calibration to JSON on the RC. */
 @TeleOp(name = "Calibration_Pinpoint", group = "Tuning")
+@Disabled
 public class Calibration_Pinpoint extends OpMode {
     private TelemetryUtil T;
     private double trackWidth = Constants.Pinpoint.TRACK_WIDTH_MM;

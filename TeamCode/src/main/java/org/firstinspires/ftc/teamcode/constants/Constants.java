@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  * Every constant has a short comment describing its purpose.
  */
 public final class Constants {
-
     /** Drivetrain configuration and TeleOp behavior. */
     public static final class Drive {
         // RC config names for the four mecanum drive motors

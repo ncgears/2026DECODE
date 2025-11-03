@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.vision.AprilTagVision;
@@ -12,6 +13,7 @@ import java.util.List;
 
 
 @TeleOp(name = "Vision_AprilTags_Test", group = "Vision")
+//@Disabled
 public class Vision_AprilTags_Test extends OpMode {
     private AprilTagVision vision;
     private TelemetryUtil T;
