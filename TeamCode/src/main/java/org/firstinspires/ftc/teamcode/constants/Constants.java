@@ -18,9 +18,9 @@ public final class Constants {
         public static final String RR = "rr drive";
 
         // Whether to reverse each motor in code to match wiring/gearbox orientation
-        public static final boolean INVERT_FL = false;
+        public static final boolean INVERT_FL = true;
         public static final boolean INVERT_FR = true;   // per user: fr inverted
-        public static final boolean INVERT_RL = false;
+        public static final boolean INVERT_RL = true;
         public static final boolean INVERT_RR = true;   // per user: rr inverted
 
         // Mechanism notes (used for feedforward/auton planning later)
@@ -62,7 +62,7 @@ public final class Constants {
         public static final RevHubOrientationOnRobot.LogoFacingDirection LOGO =
                 RevHubOrientationOnRobot.LogoFacingDirection.UP;
         public static final RevHubOrientationOnRobot.UsbFacingDirection USB =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
         public static final AngleUnit HEADING_UNIT = AngleUnit.RADIANS;
     }
 
