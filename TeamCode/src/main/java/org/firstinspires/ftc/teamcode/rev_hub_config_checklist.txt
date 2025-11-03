@@ -1,0 +1,31 @@
+[Hubs]
+Control Hub = 1
+Expansion Hub = 2
+
+[Motors]
+fl drive  -> Hub: ______  Port: M____
+fr drive  -> Hub: ______  Port: M____
+rl drive  -> Hub: ______  Port: M____
+rr drive  -> Hub: ______  Port: M____
+intake    -> Hub: ______  Port: M____
+shooter1  -> Hub: ______  Port: M____
+shooter2  -> Hub: ______  Port: M____
+elev      -> Hub: ______  Port: M____
+
+[Servos]
+indexer (CR) -> Hub: ______  Port: S____
+ramp   (STD) -> Hub: ______  Port: S____
+
+[Digital Inputs]
+indexslot   -> Hub: ______  Channel: D____  (INPUT, NC: LOW when pressed)
+indexpurple -> Hub: ______  Channel: D____  (INPUT, HIGH on purple)
+indexgreen  -> Hub: ______  Channel: D____  (INPUT, HIGH on green)
+elevlim     -> Hub: ______  Channel: D____  (INPUT, NC: LOW when pressed)
+flag sw a   -> Hub: ______  Channel: D____  (INPUT, asserted = LOW)
+flag sw b   -> Hub: ______  Channel: D____  (INPUT, asserted = LOW)
+auto sw a   -> Hub: ______  Channel: D____  (INPUT, asserted = LOW)
+auto sw b   -> Hub: ______  Channel: D____  (INPUT, asserted = LOW)
+
+[Webcams]
+motifcam -> USB: ______ (Hub/port)
+odocam   -> USB: ______ (Hub/port)

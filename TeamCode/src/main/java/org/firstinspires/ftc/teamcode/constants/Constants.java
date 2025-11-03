@@ -78,8 +78,8 @@ public final class Constants {
     public static final class Indexer {
         public static final String SERVO = "indexer";       // CR servo name
         public static final String SLOT_LIMIT = "indexslot";// NC slot switch (HIGH normal, LOW pressed)
-        public static final String PURPLE_DI = "index_purple"; // PNP HIGH when purple detected at S1L
-        public static final String GREEN_DI  = "index_green";  // PNP HIGH when green detected at S1L
+        public static final String PURPLE_DI = "indexpurple"; // PNP HIGH when purple detected at S1L
+        public static final String GREEN_DI  = "indexgreen";  // PNP HIGH when green detected at S1L
 
         public static final double POWER_FWD = 0.80;           // CR servo forward power
         public static final boolean DIR_FORWARD_IS_POSITIVE = true; // flip if wiring requires
@@ -117,7 +117,7 @@ public final class Constants {
     /** Elevator (endgame lift) configuration. */
     public static final class Elevator {
         public static final String MOTOR    = "elev";     // HD Hex motor name
-        public static final String LIMIT_SW = "elev sw";  // NC HIGH normal, LOW when triggered
+        public static final String LIMIT_SW = "elevlim";  // NC HIGH normal, LOW when triggered
 
         public static final double POWER_UP   = 0.80;   // deploy
         public static final double POWER_DOWN = -0.40;  // retract
@@ -179,8 +179,11 @@ public final class Constants {
 
     /** Digital channel names for team alliance flags. */
     public static final class Digital {
+        public static final boolean SWAP_FLAG_SW = false;
         public static final String FLAG_A = "flag sw a";
         public static final String FLAG_B = "flag sw b";
+        public static final String AUTO_A  = "auto sw a";
+        public static final String AUTO_B  = "auto sw b";
     }
 
     private Constants() {}

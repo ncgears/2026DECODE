@@ -4,24 +4,39 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.constants.Constants;
 
-/** Reads two digital inputs and returns inferred alliance color. */
+/**
+ * Alliance detector using two digital inputs:
+ * - FLAG_A => Red (default)
+ * - FLAG_B => Blue (default)
+ * Set Constants.Digital.SWAP_FLAG_SW = true to swap the mapping (A->Blue, B->Red).
+ *
+ * Notes:
+ * - REV hubs use pull-ups; inputs read HIGH when open, LOW when asserted.
+ * - If both or neither are asserted, returns NONE.
+ */
 public class AllianceDetector {
-    private final DigitalChannel a, b;
+    private final DigitalChannel flagA, flagB;
+
     public AllianceDetector(HardwareMap hw) {
-        a = hw.get(DigitalChannel.class, Constants.Digital.FLAG_A);
-        b = hw.get(DigitalChannel.class, Constants.Digital.FLAG_B);
-        a.setMode(DigitalChannel.Mode.INPUT);
-        b.setMode(DigitalChannel.Mode.INPUT);
+        flagA = hw.get(DigitalChannel.class, Constants.Digital.FLAG_A);
+        flagB = hw.get(DigitalChannel.class, Constants.Digital.FLAG_B);
+        flagA.setMode(DigitalChannel.Mode.INPUT);
+        flagB.setMode(DigitalChannel.Mode.INPUT);
     }
+
     public Alliance determineAlliance() {
-        try {
-            boolean sa = a.getState(); // pull-ups: high normally
-            boolean sb = b.getState();
-            if (sa && sb) return Alliance.RED;    // no switches -> red flag
-            if (sa || sb) return Alliance.BLUE;   // one switch -> blue flag
-            return Alliance.NONE;                 // both low -> none/fault
-        } catch (Exception e) {
-            return Alliance.NONE;
-        }
+        boolean aTrig = !flagA.getState(); // LOW => asserted
+        boolean bTrig = !flagB.getState(); // LOW => asserted
+
+        if (aTrig && bTrig) return Alliance.NONE; // invalid / both switches
+        if (!aTrig && !bTrig) return Alliance.NONE; // none
+
+        boolean aMeansRed = !Constants.Digital.SWAP_FLAG_SW; // default: A->RED
+        if (aTrig)  return aMeansRed ? Alliance.RED  : Alliance.BLUE;
+        else        return aMeansRed ? Alliance.BLUE : Alliance.RED;
     }
+
+    /** Raw asserted states for debugging (true == asserted/LOW). */
+    public boolean isFlagAAsserted() { return !flagA.getState(); }
+    public boolean isFlagBAsserted() { return !flagB.getState(); }
 }
