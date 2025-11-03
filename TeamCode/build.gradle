@@ -25,4 +25,7 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
+    implementation 'org.ftclib.ftclib:core:2.1.1'
+    // implementation "org.ftclib.ftclib:vision:2.1.0" //optional if using ftclib vision
+    // (requires manually copy the libOpenCvAndroid453.so into the FIRST folder on robot controller
 }
