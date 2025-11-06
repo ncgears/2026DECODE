@@ -33,7 +33,7 @@ public final class Constants {
 
         // Rotation control: use right stick X, and define CW sign (RS right => CW on field)
         public static final boolean ROTATION_RIGHT_STICK_X = true;
-        public static final boolean ROTATION_CW_IS_POSITIVE = true;
+        public static final boolean ROTATION_CW_IS_POSITIVE = false;
 
         // Slew limiters to smooth commands (units per second)
         public static final boolean SLEW_ENABLED = true;
