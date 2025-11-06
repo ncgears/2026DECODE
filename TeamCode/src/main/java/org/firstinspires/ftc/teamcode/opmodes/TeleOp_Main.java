@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 
 @TeleOp(name = "TeleOp_Main", group = "Main")
-//@Disabled
+@Disabled
 public class TeleOp_Main extends OpMode {
     private DriveSubsystem drive;
     private IntakeSubsystem intake;

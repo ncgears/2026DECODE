@@ -13,7 +13,7 @@ import java.util.List;
 
 
 @TeleOp(name = "Vision_AprilTags_Test", group = "Vision")
-//@Disabled
+@Disabled
 public class Vision_AprilTags_Test extends OpMode {
     private AprilTagVision vision;
     private TelemetryUtil T;
