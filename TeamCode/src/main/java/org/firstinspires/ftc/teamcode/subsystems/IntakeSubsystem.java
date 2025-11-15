@@ -9,7 +9,7 @@ public class IntakeSubsystem {
     private final Motor motor;
     private boolean paused;
     public IntakeSubsystem(HardwareMap hw) {
-        motor = hw.get(Motor.class, Constants.Intake.MOTOR);
+        motor = new Motor(hw, Constants.Intake.MOTOR);
         motor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
     }
     public void intake() { if (!paused) motor.set(Constants.Intake.POWER_IN); }

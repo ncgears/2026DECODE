@@ -61,7 +61,7 @@ import java.util.Locale;
  */
 
 @TeleOp(name = "Utility: Camera Frame Capture", group = "Utility")
-//@Disabled
+@Disabled
 public class UtilityCameraFrameCapture extends LinearOpMode
 {
 //    private static final String WEBCAM_NAME = Constants.Vision.ODO_CAM_NAME; // "odocam"

@@ -77,8 +77,8 @@ public final class Constants {
     public static final class Indexer {
         public static final String SERVO = "indexer";       // CR servo name
         public static final String SLOT_LIMIT = "indexslot";// NC slot switch (HIGH normal, LOW pressed)
-        public static final String PURPLE_DI = "indexpurple"; // PNP HIGH when purple detected at S1L
-        public static final String GREEN_DI  = "indexgreen";  // PNP HIGH when green detected at S1L
+        public static final String PURPLE_DI = "indexpurple"; // ACTIVE-LOW using level shifter when purple detected at S1L
+        public static final String GREEN_DI  = "indexgreen";  // ACTIVE-LOW using level shifter when green detected at S1L
 
         public static final double POWER_FWD = 0.80;           // CR servo forward power
         public static final boolean DIR_FORWARD_IS_POSITIVE = false; // flip if wiring requires
