@@ -160,8 +160,14 @@ public final class Constants {
     /** Pinpoint calibration store (JSON) and default values until tuned. */
     public static final class Pinpoint {
         public static String CALIBRATION_JSON = "/sdcard/FIRST/calibration/pinpoint.json"; // auto-persist path
-        public static double TRACK_WIDTH_MM   = 150.0; // default until tuned
-        public static double FORWARD_OFFSET_MM= 0.0;   // default until tuned
+        /*
+            +X=forward, +y=left; origin is center of robot rotation (X from contact point of each mecanum)
+            Y pod (strafe) is at x+20.6, y-92.7
+            X pod (forward) is at x+20.6, y+87.2
+            Track width is 179.9 (92.7+87.2)
+         */
+        public static double TRACK_WIDTH_MM   = 179.9; // default until tuned
+        public static double FORWARD_OFFSET_MM= 20.6;   // default until tuned
     }
 
     /** Stick shaping selection and parameters. */
