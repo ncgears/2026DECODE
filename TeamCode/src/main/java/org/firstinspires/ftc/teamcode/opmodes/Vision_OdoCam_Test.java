@@ -133,11 +133,11 @@ public class Vision_OdoCam_Test extends OpMode {
                 .setDrawTagID(true);
 
         // TODO: fill these once you calibrate odocam at this resolution:
-        // double fx = ...;
-        // double fy = ...;
-        // double cx = ...;
-        // double cy = ...;
-        // b.setLensIntrinsics(fx, fy, cx, cy);
+         double fx = 905.168;
+         double fy = 905.168;
+         double cx = 667.265;
+         double cy = 356.696;
+         b.setLensIntrinsics(fx, fy, cx, cy);
 
         return b.build();
     }
