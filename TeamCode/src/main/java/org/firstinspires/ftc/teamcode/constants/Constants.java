@@ -190,7 +190,7 @@ public final class Constants {
 
     /** Digital channel names for team alliance flags. */
     public static final class Digital {
-        public static final boolean SWAP_FLAG_SW = false;
+        public static final boolean SWAP_FLAG_SW = true;
         public static final String FLAG_A = "flag sw a";
         public static final String FLAG_B = "flag sw b";
         public static final String AUTO_A  = "auto sw a";

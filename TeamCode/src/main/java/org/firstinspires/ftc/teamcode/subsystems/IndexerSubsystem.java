@@ -109,6 +109,30 @@ public class IndexerSubsystem {
         return false;
     }
 
+    /**
+     * Peek at the raw color sensor lines at S1L without modifying the queue.
+     *
+     * Wiring is ACTIVE-LOW:
+     *   - diPurple: HIGH = idle, LOW = purple detected at S1L
+     *   - diGreen:  HIGH = idle, LOW = green  detected at S1L
+     *
+     * Returns:
+     *   - Item.PURPLE if only purple is active
+     *   - Item.GREEN  if only green  is active
+     *   - Item.NONE   if neither or both are active (no clean read)
+     *
+     * This DOES NOT change S0/S1L/S2; it is purely diagnostic.
+     */
+    public Item peekColorAtS1LRaw() {
+        boolean purpleActive = !diPurple.getState(); // ACTIVE-LOW
+        boolean greenActive  = !diGreen.getState();
+
+        if (purpleActive ^ greenActive) {
+            return purpleActive ? Item.PURPLE : Item.GREEN;
+        }
+        return Item.NONE;
+    }
+
     /** Rotate buffer to match motif order, with special GGP rule for PGP/PPG => make next shot PURPLE. */
     public void rotateForMotif(String motifCode) {
         if (!isQueueFull()) return;
