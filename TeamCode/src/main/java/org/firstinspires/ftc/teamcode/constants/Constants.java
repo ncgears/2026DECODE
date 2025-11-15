@@ -154,11 +154,11 @@ public final class Constants {
         public static final double ODO_STICK_THRESH     = 0.30; // only fuse when driver stick is calm
 
         // AprilTag IDs for this season
-        public static final int TAG_MOTIF_GPP = 21;
-        public static final int TAG_MOTIF_PGP = 22;
-        public static final int TAG_MOTIF_PPG = 23;
-        public static final int TAG_GOAL_BLUE = 20;
-        public static final int TAG_GOAL_RED  = 24;
+        public static final int TAG_MOTIF_GPP = 21; //21
+        public static final int TAG_MOTIF_PGP = 22; //22
+        public static final int TAG_MOTIF_PPG = 15; //23
+        public static final int TAG_GOAL_BLUE = 20; //20
+        public static final int TAG_GOAL_RED  = 24; //24
     }
 
     /** Pinpoint calibration store (JSON) and default values until tuned. */
