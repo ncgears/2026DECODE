@@ -72,10 +72,40 @@ public class IndexerSubsystem {
 
     public boolean isQueueFull() { return getS0()!=Item.NONE && getS1L()!=Item.NONE && getS2()!=Item.NONE; }
 
-    /** Read color lines at S1L; overwrite queue if exactly one line is HIGH. */
+    /**
+     * Sample the discrete color lines at S1L and (optionally) update the queue.
+     *
+     * Wiring is ACTIVE-LOW:
+     *   - diPurple: HIGH = idle, LOW = purple detected at S1L
+     *   - diGreen:  HIGH = idle, LOW = green  detected at S1L
+     *
+     * Behavior:
+     *   - If exactly one color line is asserted (LOW), we treat that as "ball present":
+     *       * S1L is set to PURPLE or GREEN (overwriting any previous value),
+     *       * and this returns true.
+     *   - If neither or both are asserted, queue is unchanged and this returns false.
+     *
+     * Note: this NEVER sets a slot to NONE; clearing is only done by clearAll()/re-index.
+     */
     public boolean detectAtS1L() {
-        boolean p = diPurple.getState(), g = diGreen.getState();
-        if (p ^ g) { setS1L(p ? Item.PURPLE : Item.GREEN); return true; }
+        // ACTIVE-LOW: LOW means detected
+        boolean purpleActive = !diPurple.getState();
+        boolean greenActive  = !diGreen.getState();
+
+        // Exactly one active -> we have a confident color
+        if (purpleActive ^ greenActive) {
+            Item newItem = purpleActive ? Item.PURPLE : Item.GREEN;
+
+            // Overwrite stored color if needed
+            if (getS1L() != newItem) {
+                setS1L(newItem);
+            }
+
+            // Signal to the caller that a color is present now
+            return true;
+        }
+
+        // No clean detection this sample
         return false;
     }
 

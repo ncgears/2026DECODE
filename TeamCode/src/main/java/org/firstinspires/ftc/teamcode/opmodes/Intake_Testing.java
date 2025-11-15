@@ -7,103 +7,55 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndexerSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndexerSubsystem.Item;
 
-/**
- * Intake_Testing
- *
- * Diagnostics TeleOp focused on:
- *   - IntakeSubsystem behavior (intake / outtake / stop)
- *   - IndexerStepper behavior using slot limit switch (indexslot)
- *   - Discrete color DIO lines (indexpurple / indexgreen), wired ACTIVE-LOW
- *
- * Behavior:
- *   - On startup, performs a single "homing" step: run forward until the NC slot switch
- *     transitions from LOW (pressed) to HIGH (released), via IndexerSubsystem.startStep()/loop().
- *   - While running:
- *       gamepad2.x (hold)          => intake forward
- *       gamepad2.left_bumper + x   => outtake
- *       gamepad2.left_trigger>0.5  => advance indexer one slot (when READY)
- *       gamepad2.y (hold)          => clear queue (ALL NONE)
- *
- *   - After each completed step (including homing), samples the color lines at S1L via
- *     IndexerSubsystem.detectAtS1L() using ACTIVE-LOW semantics:
- *       indexpurple/indexgreen: HIGH = idle, LOW = color present
- */
 @TeleOp(name = "Intake_Testing", group = "Diagnostics")
 public class Intake_Testing extends OpMode {
 
     private IntakeSubsystem intake;
     private IndexerSubsystem indexer;
 
-    private enum IndexerMode {
-        HOMING_REQUESTED,
-        HOMING_IN_PROGRESS,
-        READY
-    }
+    // Shared edge-detect state (used in both init_loop and loop)
+    private boolean wasStepping   = false;
+    private boolean lastLTPressed = false;
+    private boolean lastBPressed  = false;
 
-    private IndexerMode indexerMode = IndexerMode.HOMING_REQUESTED;
-
-    private boolean wasStepping = false;
     private boolean lastStepDetectedColor = false;
-    private Item lastDetectedItem = Item.NONE;
+    private Item lastDetectedItem         = Item.NONE;
 
     @Override
     public void init() {
-        intake = new IntakeSubsystem(hardwareMap);
+        intake  = new IntakeSubsystem(hardwareMap);
         indexer = new IndexerSubsystem(hardwareMap);
 
-        indexerMode = IndexerMode.HOMING_REQUESTED;
-        wasStepping = false;
+        wasStepping          = indexer.isStepping();
+        lastLTPressed        = false;
+        lastBPressed         = false;
         lastStepDetectedColor = false;
-        lastDetectedItem = Item.NONE;
+        lastDetectedItem      = Item.NONE;
 
-        telemetry.addLine("Intake_Testing: init complete. Waiting for start.");
+        telemetry.addLine("Intake_Testing: INIT. Use LT/B to step/clear; color will auto-advance when not full.");
+    }
+
+    @Override
+    public void init_loop() {
+        // Same indexer behavior as in run loop, but without intake control.
+        handleIndexer(true);
+        telemetry.update();
+    }
+
+    @Override
+    public void start() {
+        lastStepDetectedColor = false;
+        lastDetectedItem      = indexer.getS1L();
     }
 
     @Override
     public void loop() {
-        // Keep indexer internal state machine updated
-        indexer.loop();
-        boolean isStepping = indexer.isStepping();
+        // Indexer behavior
+        handleIndexer(false);
 
-        // ---------- Indexer homing / stepping ----------
-        switch (indexerMode) {
-            case HOMING_REQUESTED:
-                // On the first loop after init, request exactly one step if idle
-                if (!isStepping) {
-                    indexer.startStep();
-                    indexerMode = IndexerMode.HOMING_IN_PROGRESS;
-                }
-                break;
-
-            case HOMING_IN_PROGRESS:
-                // Once the homing step finishes (slot switch HIGH edge seen), we're READY
-                if (!isStepping) {
-                    indexerMode = IndexerMode.READY;
-                }
-                break;
-
-            case READY:
-                // Manual advance: LT > 0.5 requests one additional step when idle
-                boolean advanceStep = gamepad2.left_trigger > 0.5;
-                if (advanceStep && !isStepping) {
-                    indexer.startStep();
-                }
-                break;
-        }
-
-        // Edge-detect completion of a step: wasStepping -> !isStepping
-        boolean stepCompletedThisLoop = wasStepping && !isStepping;
-        wasStepping = isStepping;
-
-        // After each completed step, sample color lines at S1L via subsystem
-        if (stepCompletedThisLoop) {
-            lastStepDetectedColor = indexer.detectAtS1L();
-            lastDetectedItem = lastStepDetectedColor ? indexer.getS1L() : Item.NONE;
-        }
-
-        // ---------- Intake control ----------
+        // Intake control (same mapping as Bot_Testing)
         boolean intakeForward = gamepad2.x && !gamepad2.left_bumper;
-        boolean outtake = gamepad2.x && gamepad2.left_bumper;
+        boolean outtake       = gamepad2.x &&  gamepad2.left_bumper;
 
         if (outtake) {
             intake.outtake();
@@ -113,24 +65,6 @@ public class Intake_Testing extends OpMode {
             intake.stop();
         }
 
-        // Clear the indexer queue with Y (useful to reset state in testing)
-        if (gamepad2.y) {
-            indexer.clearAll();
-        }
-
-        // ---------- Telemetry ----------
-        telemetry.addLine("== Indexer ==");
-        telemetry.addData("mode", indexerMode);
-        telemetry.addData("isStepping", isStepping);
-        telemetry.addData("stepCompletedThisLoop", stepCompletedThisLoop);
-        telemetry.addData("lastStepColorUpdate", "%s (updated=%b)",
-                lastDetectedItem, lastStepDetectedColor);
-
-        telemetry.addLine("Queue S0 / S1L / S2");
-        telemetry.addData("S0",  indexer.getS0());
-        telemetry.addData("S1L", indexer.getS1L());
-        telemetry.addData("S2",  indexer.getS2());
-
         telemetry.addLine("== Intake ==");
         telemetry.addData("command",
                 outtake ? "OUTTAKE (g2 LB+X)" :
@@ -138,5 +72,81 @@ public class Intake_Testing extends OpMode {
                                 "STOP");
 
         telemetry.update();
+    }
+
+    // ------------------------------------------------------------
+    // Shared logic for INIT and RUN
+    // ------------------------------------------------------------
+
+    private void handleIndexer(boolean inInit) {
+        // Keep indexer state machine updated
+        indexer.loop();
+        boolean isStepping = indexer.isStepping();
+
+        // Edge detection for LT / B
+        boolean ltNow        = gamepad2.left_trigger > 0.5;
+        boolean ltPressedEdge = ltNow && !lastLTPressed;
+        lastLTPressed        = ltNow;
+
+        boolean bNow         = gamepad2.b;
+        boolean bPressedEdge = bNow && !lastBPressed;
+        lastBPressed         = bNow;
+
+        // Manual stepping with g2.left_trigger (allowed in INIT and RUN)
+        if (ltPressedEdge && !isStepping) {
+            indexer.startStep();
+        }
+
+        // Full re-index / clear with g2.b when idle (INIT and RUN)
+        if (bPressedEdge && !isStepping) {
+            indexer.clearAll();          // S0/S1L/S2 -> NONE
+            lastDetectedItem      = Item.NONE;
+            lastStepDetectedColor = false;
+        }
+
+        // Edge detect completion of a step
+        boolean stepCompletedThisLoop = wasStepping && !isStepping;
+        wasStepping = isStepping;
+
+        // ---- AUTO-ADVANCE RULE ----
+        // 1) If we are currently stepping, do nothing here.
+        // 2) If the queue is FULL (all three slots non-NONE), we DO NOT auto-advance.
+        //    Manual LT is still allowed.
+        // 3) Otherwise, whenever detectAtS1L() reports a valid color
+        //    (exactly one ACTIVE-LOW color line), we update S1L (inside subsystem)
+        //    and advance one slot.
+        lastStepDetectedColor = false;
+
+        boolean queueFull = isQueueFull();
+
+        if (!isStepping && !queueFull) {
+            boolean colorPresent = indexer.detectAtS1L();
+            if (colorPresent) {
+                lastStepDetectedColor = true;
+                lastDetectedItem      = indexer.getS1L();
+                indexer.startStep(); // automatically advance away from the ball
+            }
+        } else if (!isStepping && queueFull) {
+            // Optional: still allow detection to keep S1L's color correct,
+            // but do NOT auto-advance.
+            indexer.detectAtS1L();
+        }
+
+        // ---- Telemetry ----
+        telemetry.addLine(inInit ? "== INIT / Indexer ==" : "== RUN / Indexer ==");
+        telemetry.addData("isStepping", isStepping);
+        telemetry.addData("stepCompletedThisLoop", stepCompletedThisLoop);
+        telemetry.addData("queueFull", queueFull);
+        telemetry.addData("S0",  indexer.getS0());
+        telemetry.addData("S1L", indexer.getS1L());
+        telemetry.addData("S2",  indexer.getS2());
+        telemetry.addData("lastDetectedItem", "%s (updatedThisLoop=%b)",
+                lastDetectedItem, lastStepDetectedColor);
+    }
+
+    private boolean isQueueFull() {
+        return indexer.getS0()  != Item.NONE &&
+                indexer.getS1L() != Item.NONE &&
+                indexer.getS2()  != Item.NONE;
     }
 }
