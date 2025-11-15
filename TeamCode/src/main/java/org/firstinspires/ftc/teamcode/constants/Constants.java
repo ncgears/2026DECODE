@@ -137,7 +137,11 @@ public final class Constants {
         public static final int STREAM_HEIGHT = 480;
 
         // Extrinsics for odocam (measure during bring-up; meters & degrees)
-        public static double ODO_X = 0.0, ODO_Y = 0.0, ODO_Z = 0.0;
+        /*
+            +X=forward, +y=left, +z=up; origin is center of robot rotation (X from contact point of each mecanum) at the floor
+            yaw is rotation relative to the robot, pitch is tilt from horizontal, roll is the rotation relative to the camera lens
+         */
+        public static double ODO_X = 0.0, ODO_Y = 0.0, ODO_Z = 0.3486;
         public static double ODO_YAW = 0.0, ODO_PITCH = 0.0, ODO_ROLL = 0.0;
 
         // Goal tag fusion cadence and gates (used for pose correction preference)
