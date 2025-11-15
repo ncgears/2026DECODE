@@ -28,6 +28,7 @@ public class AprilTagVision {
                 .setCamera(webcam)
                 .addProcessor(atag)
                 .setCameraResolution(new Size(Constants.Vision.STREAM_WIDTH, Constants.Vision.STREAM_HEIGHT))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
     }
 }

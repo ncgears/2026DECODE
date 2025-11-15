@@ -133,8 +133,8 @@ public final class Constants {
     public static final class Vision {
         public static final String MOTIF_CAM_NAME = "motifcam"; // reads motif tags (21,22,23)
         public static final String ODO_CAM_NAME   = "odocam";   // reads goal tags (20 blue, 24 red)
-        public static final int STREAM_WIDTH  = 640; // default stream resolution (speed)
-        public static final int STREAM_HEIGHT = 480;
+        public static final int STREAM_WIDTH  = 1280; // default stream resolution (speed)
+        public static final int STREAM_HEIGHT = 720;
 
         // Extrinsics for odocam (measure during bring-up; meters & degrees)
         /*
