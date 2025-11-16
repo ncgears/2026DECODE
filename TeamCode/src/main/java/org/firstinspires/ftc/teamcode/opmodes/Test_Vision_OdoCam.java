@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import android.util.Size;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -19,19 +18,26 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 /**
- * Vision_MotifCam_Test
+ * Vision_OdoCam_Test
  *
- * Single-camera AprilTag test for the MOTIF camera (Constants.Vision.MOTIF_CAM_NAME).
+ * Single-camera AprilTag test for the ODO camera (Constants.Vision.ODO_CAM_NAME).
+ * - Uses one VisionPortal (no multi-portal issues).
+ * - Uses MJPEG at the resolution in Constants.Vision.
+ * - Null-safe detection handling (no random NPEs).
+ *
+ * NOTE: Pose/range will only be accurate AFTER you set lens intrinsics via
+ *       setLensIntrinsics(fx, fy, cx, cy) with calibrated values.
  */
-@TeleOp(name = "Vision_MotifCam_Test", group = "Vision")
+@TeleOp(name = "Test_Vision_OdoCam", group = "Vision")
 //@Disabled
-public class Vision_MotifCam_Test extends OpMode {
+public class Test_Vision_OdoCam extends OpMode {
 
     private AprilTagProcessor proc;
     private VisionPortal portal;
 
     @Override
     public void init() {
+        // Tag library for this season
         AprilTagLibrary tagLib = new AprilTagLibrary.Builder()
                 .addTags(AprilTagGameDatabase.getCurrentGameTagLibrary())
                 .build();
@@ -39,7 +45,7 @@ public class Vision_MotifCam_Test extends OpMode {
         proc = buildProcessor(tagLib);
 
         WebcamName cam = hardwareMap.get(
-                WebcamName.class, Constants.Vision.MOTIF_CAM_NAME);
+                WebcamName.class, Constants.Vision.ODO_CAM_NAME);
 
         portal = new VisionPortal.Builder()
                 .setCamera(cam)
@@ -47,11 +53,12 @@ public class Vision_MotifCam_Test extends OpMode {
                 .setCameraResolution(
                         new Size(Constants.Vision.STREAM_WIDTH,
                                 Constants.Vision.STREAM_HEIGHT))
+                // Single portal, so default live view behavior is fine; no container override needed.
                 .addProcessor(proc)
                 .build();
 
-        telemetry.addLine("Vision_MotifCam_Test init complete.");
-        telemetry.addData("Camera", Constants.Vision.MOTIF_CAM_NAME);
+        telemetry.addLine("Vision_OdoCam_Test init complete.");
+        telemetry.addData("Camera", Constants.Vision.ODO_CAM_NAME);
         telemetry.addData("Resolution", "%dx%d",
                 Constants.Vision.STREAM_WIDTH,
                 Constants.Vision.STREAM_HEIGHT);
@@ -60,12 +67,12 @@ public class Vision_MotifCam_Test extends OpMode {
     @Override
     public void loop() {
         if (portal != null) {
-            telemetry.addData("MOTIF state", portal.getCameraState());
-            telemetry.addData("MOTIF fps",   "%.1f", portal.getFps());
+            telemetry.addData("ODO state", portal.getCameraState());
+            telemetry.addData("ODO fps",   "%.1f", portal.getFps());
         }
 
-        telemetry.addLine("=== MOTIFCAM detections ===");
-        logDetections("M", proc);
+        telemetry.addLine("=== ODOCAM detections ===");
+        logDetections("O", proc);
 
         telemetry.update();
     }
@@ -124,12 +131,12 @@ public class Vision_MotifCam_Test extends OpMode {
                 .setDrawTagOutline(true)
                 .setDrawTagID(true);
 
-        // TODO: fill these once you calibrate motifcam at this resolution:
-        double fx = 905.168;
-        double fy = 905.168;
-        double cx = 667.265;
-        double cy = 356.696;
-        b.setLensIntrinsics(fx, fy, cx, cy);
+        // TODO: fill these once you calibrate odocam at this resolution:
+         double fx = 905.168;
+         double fy = 905.168;
+         double cx = 667.265;
+         double cy = 356.696;
+         b.setLensIntrinsics(fx, fy, cx, cy);
 
         return b.build();
     }

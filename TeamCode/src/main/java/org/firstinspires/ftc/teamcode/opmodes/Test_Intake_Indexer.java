@@ -7,8 +7,8 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndexerSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndexerSubsystem.Item;
 
-@TeleOp(name = "Intake_Testing", group = "Diagnostics")
-public class Intake_Testing extends OpMode {
+@TeleOp(name = "Test_Intake_Indexer", group = "Diagnostics")
+public class Test_Intake_Indexer extends OpMode {
 
     private IntakeSubsystem intake;
     private IndexerSubsystem indexer;
