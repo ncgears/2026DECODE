@@ -58,6 +58,10 @@ public final class PinpointLocalizer implements Localizer {
         lastSampleNanos = System.nanoTime();
     }
 
+    public GoBildaPinpointDriver getDriver() {
+        return pinpoint;
+    }
+
     @Override
     public void setPose(Pose2d pose) {
         // Store the RR pose in inches and also push a matching pose into Pinpoint
