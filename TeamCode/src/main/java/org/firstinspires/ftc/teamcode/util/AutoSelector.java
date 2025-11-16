@@ -28,6 +28,7 @@ public class AutoSelector {
         autoB.setMode(DigitalChannel.Mode.INPUT);
     }
 
+    public AutoMode getAutoMode(Alliance alliance) { return select(alliance); } //convenience wrapper for logical name
     public AutoMode select(Alliance alliance) {
         boolean a = !autoA.getState(); // LOW => asserted
         boolean b = !autoB.getState(); // LOW => asserted

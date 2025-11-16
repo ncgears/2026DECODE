@@ -24,6 +24,7 @@ public class AllianceDetector {
         flagB.setMode(DigitalChannel.Mode.INPUT);
     }
 
+    public Alliance getAlliance() { return determineAlliance(); } //convenience wrapper for logical name
     public Alliance determineAlliance() {
         boolean aTrig = !flagA.getState(); // LOW => asserted
         boolean bTrig = !flagB.getState(); // LOW => asserted
