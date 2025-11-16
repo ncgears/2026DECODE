@@ -56,10 +56,44 @@ public class TeleOp_Main extends OpMode {
             File f = new File(Constants.Pinpoint.CALIBRATION_JSON);
             if (!f.exists()) return;
             StringBuilder sb = new StringBuilder();
-            try (FileReader fr = new FileReader(f)) { int c; while ((c = fr.read()) != -1) sb.append((char)c); }
+            try (FileReader fr = new FileReader(f)) {
+                int c;
+                while ((c = fr.read()) != -1) sb.append((char) c);
+            }
             JSONObject o = new JSONObject(sb.toString());
-            Constants.Pinpoint.TRACK_WIDTH_MM = o.optDouble("trackWidthMm", Constants.Pinpoint.TRACK_WIDTH_MM);
-            Constants.Pinpoint.FORWARD_OFFSET_MM = o.optDouble("forwardOffsetMm", Constants.Pinpoint.FORWARD_OFFSET_MM);
+
+            // Load scalar tuning values from JSON (track width & forward offset in mm)
+            double trackWidth = o.optDouble(
+                    "trackWidthMm",
+                    Math.abs(Constants.Pinpoint.X_POD_SIDE_OFFSET_MM - Constants.Pinpoint.Y_POD_SIDE_OFFSET_MM)
+            );
+            double fwdOffset = o.optDouble(
+                    "forwardOffsetMm",
+                    0.5 * (Constants.Pinpoint.X_POD_FORWARD_OFFSET_MM + Constants.Pinpoint.Y_POD_FORWARD_OFFSET_MM)
+            );
+
+            // 1) Forward offsets: keep both pods at the same forward distance from the CoR.
+            Constants.Pinpoint.X_POD_FORWARD_OFFSET_MM = fwdOffset;
+            Constants.Pinpoint.Y_POD_FORWARD_OFFSET_MM = fwdOffset;
+
+            // 2) Side offsets: scale the existing asymmetric geometry to match trackWidth.
+            double left0  = Math.abs(Constants.Pinpoint.X_POD_SIDE_OFFSET_MM);  // left pod (+Y)
+            double right0 = Math.abs(Constants.Pinpoint.Y_POD_SIDE_OFFSET_MM);  // right pod (-Y)
+            double baseTrack = left0 + right0;
+            if (baseTrack > 1e-6) {
+                double scale = trackWidth / baseTrack;
+                double newLeft  = left0  * scale;
+                double newRight = right0 * scale;
+
+                // Left pod is +Y, right pod is -Y
+                Constants.Pinpoint.X_POD_SIDE_OFFSET_MM =  newLeft;
+                Constants.Pinpoint.Y_POD_SIDE_OFFSET_MM = -newRight;
+
+                // Keep convenience TRACK_WIDTH_MM in sync
+                Constants.Pinpoint.TRACK_WIDTH_MM =
+                        Math.abs(Constants.Pinpoint.X_POD_SIDE_OFFSET_MM - Constants.Pinpoint.Y_POD_SIDE_OFFSET_MM);
+            }
+
             telemetry.addLine("Pinpoint calib loaded");
         } catch (Exception e) {
             telemetry.addLine("Pinpoint calib load failed");
