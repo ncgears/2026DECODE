@@ -163,15 +163,30 @@ public final class Constants {
 
     /** Pinpoint calibration store (JSON) and default values until tuned. */
     public static final class Pinpoint {
+        public static final String NAME = "pinpoint";
         public static String CALIBRATION_JSON = "/sdcard/FIRST/calibration/pinpoint.json"; // auto-persist path
         /*
+            Geometry notes (robot frame: +X = forward, +Y = left, origin = rotation center):
+
             +X=forward, +y=left; origin is center of robot rotation (X from contact point of each mecanum)
             Y pod (strafe) is at x+20.6, y-92.7
             X pod (forward) is at x+20.6, y+87.2
             Track width is 179.9 (92.7+87.2)
+
+            For the Pinpoint driver, we assume symmetric pods based on the tuned values:
+                xOffset (sideways position of X pod)   = +TRACK_WIDTH_MM / 2
+                yOffset (forward position of Y pod)    = FORWARD_OFFSET_MM
          */
-        public static double TRACK_WIDTH_MM   = 179.9; // default until tuned
-        public static double FORWARD_OFFSET_MM= 20.6;   // default until tuned
+        // Forward/back positions of pods (you mostly care about Y pod here)
+        public static double X_POD_FORWARD_OFFSET_MM = 20.6;  // X pod x
+        public static double Y_POD_FORWARD_OFFSET_MM = 20.6;  // Y pod x
+
+        // Sideways positions of pods (you mostly care abouy X pod here)
+        public static double X_POD_SIDE_OFFSET_MM = 87.2;   // X pod y (left is +)
+        public static double Y_POD_SIDE_OFFSET_MM = -92.7;  // Y pod y (right is -)
+
+        // Optional derived helper, if you still want to keep “track width” around:
+        public static double TRACK_WIDTH_MM = Math.abs(X_POD_SIDE_OFFSET_MM - Y_POD_SIDE_OFFSET_MM);
     }
 
     /** Stick shaping selection and parameters. */

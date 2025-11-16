@@ -21,10 +21,10 @@ import java.util.List;
  * Test_Subsystems
  *
  * Diagnostics TeleOp that reports subsystem-level detections:
- *  - Alliance from AllianceDetector
+ *  - Alliance from AllianceDetector (+ AutoSelector auto mode)
  *  - Indexer *raw* detected color at S1L (PURPLE / GREEN / NONE, non-sticky)
  *  - Motif from motifcam (TAG_MOTIF_* IDs -> "GPP"/"PGP"/"PPG")
- *  - IMU heading + Pinpoint heading (pose hook left as a TODO)
+ *  - IMU heading + Pinpoint heading
  *
  * Behavior:
  *  - During init_loop(): snapshot mode. Press g2.A to refresh all readings.
@@ -86,7 +86,7 @@ public class Test_Subsystems extends OpMode {
             snapshotAlliance = allianceDetector.determineAlliance();
 
             // Auto snapshot (combine alliance + auto switch)
-            AutoSelector.AutoMode snapshotAuto = autoSelector.select(snapshotAlliance);
+            snapshotAuto = autoSelector.select(snapshotAlliance);
 
             // Color snapshot: RAW sensor view, non-sticky
             snapshotColor = indexer.peekColorAtS1LRaw();
@@ -128,7 +128,6 @@ public class Test_Subsystems extends OpMode {
                 "%.3f rad (%.1f deg)",
                 snapshotPinpointHeadingRad,
                 Math.toDegrees(snapshotPinpointHeadingRad));
-        telemetry.addLine("Pinpoint pose: hook up your PinpointHeading pose API here (x,y).");
 
         telemetry.update();
     }
@@ -183,7 +182,6 @@ public class Test_Subsystems extends OpMode {
                 "%.3f rad (%.1f deg)",
                 pinpointHeadingRad,
                 Math.toDegrees(pinpointHeadingRad));
-        telemetry.addLine("Pinpoint pose: hook up your PinpointHeading pose API here (x,y).");
 
         telemetry.update();
     }
