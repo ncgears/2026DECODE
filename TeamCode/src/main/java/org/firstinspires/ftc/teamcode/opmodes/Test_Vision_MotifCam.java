@@ -123,12 +123,13 @@ public class Test_Vision_MotifCam extends OpMode {
                 .setDrawTagOutline(true)
                 .setDrawTagID(true);
 
-        // TODO: fill these once you calibrate motifcam at this resolution:
-        double fx = 905.168;
-        double fy = 905.168;
-        double cx = 667.265;
-        double cy = 356.696;
-        b.setLensIntrinsics(fx, fy, cx, cy);
+        // Lens intrinsics from Constants.Vision (odo cam calibration)
+        b.setLensIntrinsics(
+                Constants.Vision.ODO_FX,
+                Constants.Vision.ODO_FY,
+                Constants.Vision.ODO_CX,
+                Constants.Vision.ODO_CY
+        );
 
         return b.build();
     }

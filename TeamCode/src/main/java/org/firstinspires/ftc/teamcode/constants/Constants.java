@@ -149,7 +149,7 @@ public final class Constants {
         public static final double ODO_FUSE_ALPHA   = 0.20; // blend factor (placeholder for Pinpoint integration)
         public static final double ODO_MAX_RANGE_M      = 3.0;  // only fuse within this range
         public static final double ODO_MAX_ABS_YAW_DEG  = 25.0; // only fuse if facing within this yaw
-        public static final double ODO_MAX_DELTA_M      = 0.10; // clamp per update
+        public static final double ODO_MAX_DELTA_M      = 0.1; // clamp per update
         public static final double ODO_MAX_DELTA_DEG    = 5.0;  // clamp per update
         public static final double ODO_STICK_THRESH     = 0.30; // only fuse when driver stick is calm
 
@@ -158,7 +158,14 @@ public final class Constants {
         public static final int TAG_MOTIF_PGP = 22; //22
         public static final int TAG_MOTIF_PPG = 23; //23
         public static final int TAG_GOAL_BLUE = 20; //20
-        public static final int TAG_GOAL_RED  = 15; //24
+        public static final int TAG_GOAL_RED  = 24; //24
+
+        // OdoCam lens intrinsics (for AprilTagProcessor)
+        // Units are pixels for focal lengths and principal point.
+        public static final double ODO_FX = 905.168;
+        public static final double ODO_FY = 905.168;
+        public static final double ODO_CX = 667.265;
+        public static final double ODO_CY = 356.696;
     }
 
     /** Pinpoint calibration store (JSON) and default values until tuned. */
