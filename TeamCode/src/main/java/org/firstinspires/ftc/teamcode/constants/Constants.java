@@ -156,9 +156,9 @@ public final class Constants {
         // AprilTag IDs for this season
         public static final int TAG_MOTIF_GPP = 21; //21
         public static final int TAG_MOTIF_PGP = 22; //22
-        public static final int TAG_MOTIF_PPG = 15; //23
+        public static final int TAG_MOTIF_PPG = 23; //23
         public static final int TAG_GOAL_BLUE = 20; //20
-        public static final int TAG_GOAL_RED  = 24; //24
+        public static final int TAG_GOAL_RED  = 15; //24
     }
 
     /** Pinpoint calibration store (JSON) and default values until tuned. */

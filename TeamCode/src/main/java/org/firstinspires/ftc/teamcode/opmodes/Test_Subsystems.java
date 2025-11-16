@@ -27,8 +27,10 @@ import java.util.List;
  *  - IMU heading + Pinpoint heading
  *
  * Behavior:
- *  - During init_loop(): snapshot mode. Press g2.A to refresh all readings.
+ *  - During init_loop(): snapshot mode. Press g2.A to refresh alliance/color/motif snapshot.
+ *    Headings (IMU + Pinpoint) update continuously.
  *  - During loop(): live mode, continuously updates all readings.
+ *  - g1.BACK or g2.BACK: zero IMU + Pinpoint headings (works in INIT and RUN).
  */
 @TeleOp(name = "Test_Subsystems", group = "Diagnostics")
 public class Test_Subsystems extends OpMode {
@@ -48,7 +50,10 @@ public class Test_Subsystems extends OpMode {
     private double snapshotPinpointHeadingRad = 0.0;
     private AutoSelector.AutoMode snapshotAuto = AutoSelector.AutoMode.NONE;
 
+    // Edge detection
     private boolean lastAPressed = false;
+    private boolean lastG1Back   = false;
+    private boolean lastG2Back   = false;
 
     @Override
     public void init() {
@@ -59,6 +64,10 @@ public class Test_Subsystems extends OpMode {
         motifVision      = new AprilTagVision(hardwareMap); // uses MOTIF_CAM_NAME in Constants
         autoSelector     = new AutoSelector(hardwareMap);
 
+        // Zero both IMU and Pinpoint once at INIT
+        imuHeading.zeroHeading();
+        pinpointHeading.zeroHeading();
+
         snapshotAlliance            = Alliance.NONE;
         snapshotColor               = Item.NONE;
         snapshotMotif               = "NONE";
@@ -66,9 +75,13 @@ public class Test_Subsystems extends OpMode {
         snapshotPinpointHeadingRad  = 0.0;
         snapshotAuto                = AutoSelector.AutoMode.NONE;
         lastAPressed                = false;
+        lastG1Back                  = false;
+        lastG2Back                  = false;
 
         telemetry.addLine("Test_Subsystems: INIT.");
-        telemetry.addLine("Press g2.A in INIT to snapshot subsystem detections.");
+        telemetry.addLine("IMU + Pinpoint headings zeroed.");
+        telemetry.addLine("INIT: g2.A = snapshot; RUN: live updating.");
+        telemetry.addLine("g1.BACK or g2.BACK: zero IMU + Pinpoint (INIT + RUN).");
     }
 
     @Override
@@ -76,7 +89,10 @@ public class Test_Subsystems extends OpMode {
         // Keep any internal state machines updated
         indexer.loop();
 
-        // Snapshot-on-press behavior
+        // --- Handle heading resets (g1.back / g2.back) during INIT ---
+        handleHeadingReset();
+
+        // Snapshot-on-press behavior (g2.a)
         boolean aNow  = gamepad2.a;
         boolean aEdge = aNow && !lastAPressed;
         lastAPressed  = aNow;
@@ -99,12 +115,13 @@ public class Test_Subsystems extends OpMode {
             snapshotPinpointHeadingRad = pinpointHeading.getHeadingRad();
         }
 
+        // --- Snapshot telemetry ---
         telemetry.addLine("=== Snapshot mode (INIT) ===");
-        telemetry.addLine("Press g2.A to refresh snapshot.");
+        telemetry.addLine("Press g2.A to refresh snapshot. g1.BACK/g2.BACK to zero headings.");
 
-        telemetry.addLine("== Alliance ==");
-        telemetry.addData("Alliance (snapshot)", snapshotAlliance);
-        telemetry.addData("Auto (snapshot)", snapshotAuto);
+        telemetry.addLine("== Alliance (snapshot) ==");
+        telemetry.addData("Alliance", snapshotAlliance);
+        telemetry.addData("Auto", snapshotAuto);
 
         telemetry.addLine("== Indexer detected color at S1L (RAW, snapshot) ==");
         telemetry.addData("Color", fmtItem(snapshotColor));
@@ -120,27 +137,45 @@ public class Test_Subsystems extends OpMode {
         );
 
         telemetry.addLine("== Heading / Pinpoint (snapshot) ==");
-        telemetry.addData("IMU heading",
+        telemetry.addData("IMU heading (snap)",
                 "%.3f rad (%.1f deg)",
                 snapshotImuHeadingRad,
                 Math.toDegrees(snapshotImuHeadingRad));
-        telemetry.addData("Pinpoint heading",
+        telemetry.addData("Pinpoint heading (snap)",
                 "%.3f rad (%.1f deg)",
                 snapshotPinpointHeadingRad,
                 Math.toDegrees(snapshotPinpointHeadingRad));
+
+        // --- Live headings during INIT ---
+        double imuLive      = imuHeading.getHeadingRad();
+        double pinpointLive = pinpointHeading.getHeadingRad();
+
+        telemetry.addLine("== Heading / Pinpoint (LIVE, INIT) ==");
+        telemetry.addData("IMU heading (live)",
+                "%.3f rad (%.1f deg)",
+                imuLive,
+                Math.toDegrees(imuLive));
+        telemetry.addData("Pinpoint heading (live)",
+                "%.3f rad (%.1f deg)",
+                pinpointLive,
+                Math.toDegrees(pinpointLive));
+        telemetry.addLine("g1.BACK or g2.BACK: zero both headings");
 
         telemetry.update();
     }
 
     @Override
     public void start() {
-        // Nothing special; we just switch from snapshot mode to live mode.
+        // Nothing special; we just switch from snapshot+live INIT mode to full live mode.
     }
 
     @Override
     public void loop() {
         // Keep any state machines up to date
         indexer.loop();
+
+        // --- Handle heading resets (g1.back / g2.back) during RUN ---
+        handleHeadingReset();
 
         // Live values (continuously updating)
         Alliance alliance = allianceDetector.determineAlliance();
@@ -182,11 +217,29 @@ public class Test_Subsystems extends OpMode {
                 "%.3f rad (%.1f deg)",
                 pinpointHeadingRad,
                 Math.toDegrees(pinpointHeadingRad));
+        telemetry.addLine("g1.BACK or g2.BACK: zero IMU + Pinpoint headings");
 
         telemetry.update();
     }
 
     // --------- Helpers ---------
+
+    /** Handle g1.back / g2.back to zero both headings (INIT + RUN). */
+    private void handleHeadingReset() {
+        boolean g1BackNow = gamepad1.back;
+        boolean g2BackNow = gamepad2.back;
+
+        boolean g1BackEdge = g1BackNow && !lastG1Back;
+        boolean g2BackEdge = g2BackNow && !lastG2Back;
+
+        lastG1Back = g1BackNow;
+        lastG2Back = g2BackNow;
+
+        if (g1BackEdge || g2BackEdge) {
+            imuHeading.zeroHeading();
+            pinpointHeading.zeroHeading();
+        }
+    }
 
     /** Map IndexerSubsystem.Item to readable string. */
     private String fmtItem(Item item) {
