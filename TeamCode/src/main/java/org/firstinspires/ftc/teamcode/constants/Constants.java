@@ -194,6 +194,14 @@ public final class Constants {
 
         // Optional derived helper, if you still want to keep “track width” around:
         public static double TRACK_WIDTH_MM = Math.abs(X_POD_SIDE_OFFSET_MM - Y_POD_SIDE_OFFSET_MM);
+
+        // Unit conversion: Pinpoint distances are in mm, Road Runner uses inches.
+        public static final double MM_TO_IN = 1.0 / 25.4;
+
+        // Optional axis scale factors for linear calibration (leave at 1.0 initially).
+        public static double X_MULT = 1.0; // forward/back
+        public static double Y_MULT = 1.0; // left/right
+
     }
 
     /** Stick shaping selection and parameters. */

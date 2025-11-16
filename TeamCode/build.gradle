@@ -25,7 +25,15 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
+
+    //FTCLib
     implementation 'org.ftclib.ftclib:core:2.1.1'
     // implementation "org.ftclib.ftclib:vision:2.1.0" //optional if using ftclib vision
     // (requires manually copy the libOpenCvAndroid453.so into the FIRST folder on robot controller
+
+    //RoadRunner
+    implementation "com.acmerobotics.roadrunner:ftc:0.1.25"
+    implementation "com.acmerobotics.roadrunner:core:1.0.1"
+    implementation "com.acmerobotics.roadrunner:actions:1.0.1"
+    implementation "com.acmerobotics.dashboard:dashboard:0.5.1"
 }
