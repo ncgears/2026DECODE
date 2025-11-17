@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -29,7 +30,7 @@ import java.util.List;
  *       setLensIntrinsics(fx, fy, cx, cy) with calibrated values.
  */
 @TeleOp(name = "Test_Vision_OdoCam", group = "Vision")
-//@Disabled
+@Disabled
 public class Test_Vision_OdoCam extends OpMode {
 
     private AprilTagProcessor proc;

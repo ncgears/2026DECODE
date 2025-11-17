@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -23,7 +24,7 @@ import java.util.List;
  * Single-camera AprilTag test for the MOTIF camera (Constants.Vision.MOTIF_CAM_NAME).
  */
 @TeleOp(name = "Test_Vision_MotifCam", group = "Vision")
-//@Disabled
+@Disabled
 public class Test_Vision_MotifCam extends OpMode {
 
     private AprilTagProcessor proc;

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -46,6 +47,7 @@ import org.firstinspires.ftc.teamcode.constants.Constants;
  *   - BACK                  => stop intake/indexer/shooter; retract ramp
  */
 @TeleOp(name = "Test_IO_Mechanisms", group = "Diagnostics")
+@Disabled
 public class Test_IO_Mechanisms extends OpMode {
 
     // Motors (SDK DcMotor is sufficient for testing)
