@@ -162,6 +162,10 @@ public final class Constants {
         public static final int STREAM_WIDTH  = 1280; // default stream resolution (speed)
         public static final int STREAM_HEIGHT = 720;
 
+        // Enable / disable AprilTag-based odometry fusion during autonomous.
+        public static final boolean ODO_FUSE_DURING_AUTO = true;
+        public static final boolean ODO_FUSE_DURING_TELEOP = false;
+
         // Extrinsics for odocam (measure during bring-up; meters & degrees)
         /*
             +X=forward, +y=left, +z=up; origin is center of robot rotation (X from contact point of each mecanum) at the floor

@@ -13,6 +13,8 @@ import org.firstinspires.ftc.teamcode.util.AutoSelector;
 import org.firstinspires.ftc.teamcode.util.AutoSelector.AutoMode;
 import org.firstinspires.ftc.teamcode.util.TelemetryUtil;
 
+import org.firstinspires.ftc.teamcode.vision.AprilTagVisionManager;
+
 import java.util.EnumMap;
 
 /**
@@ -31,6 +33,7 @@ public abstract class BaseAutoRR extends LinearOpMode {
     protected TelemetryUtil T;
     protected AllianceDetector allianceDetector;
     protected AutoSelector autoSelector;
+    protected AprilTagVisionManager vision;
 
     private final EnumMap<AutoMode, Pose2d> startPoses = new EnumMap<>(AutoMode.class);
 
@@ -70,6 +73,8 @@ public abstract class BaseAutoRR extends LinearOpMode {
 
         Alliance alliance = Alliance.NONE;
         AutoMode autoMode = AutoMode.NONE;
+
+        vision = new AprilTagVisionManager(hardwareMap, T);
 
         // Pre-start loop: update switch state and display selection.
         while (!isStarted() && !isStopRequested()) {
