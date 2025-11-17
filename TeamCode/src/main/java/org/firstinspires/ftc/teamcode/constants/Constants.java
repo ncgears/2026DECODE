@@ -135,6 +135,9 @@ public final class Constants {
         public static final boolean USE_RPM_MODE = false; // future switch to PIDF RPM mode
         public static final int SHOOTER_ENCODER_CPR = 28; // shooter1 built-in encoder CPR
 
+        public static final int AUTON_INTER_SHOT_DWELL_MS = 250;  // tune as needed
+        public static final int AUTON_SHOOTER_HOLD_MS     = 350;  // after last shot
+
         public static final boolean JAM_RETRACT_IMMEDIATE = true; // on jam, retract ramp & idle immediately
     }
 

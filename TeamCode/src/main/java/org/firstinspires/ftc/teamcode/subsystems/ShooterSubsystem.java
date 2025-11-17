@@ -23,6 +23,15 @@ public class ShooterSubsystem {
     private boolean shotInProgress = false;
     private boolean shotRequested = false;
 
+    // ---- Autonomous burst-fire state ----
+    private boolean autonActive = false;
+    private int     autonShotsTotal = 0;
+    private int     autonShotsFired = 0;
+    private long    autonSpinStartMs = 0L;
+    private long    autonLastShotCompleteMs = 0L;
+    private long    autonHoldStartMs = 0L;
+    private boolean autonShotInProgress = false;
+
     public ShooterSubsystem(HardwareMap hw) {
         m1 = new Motor(hw, Constants.Shooter.MOTOR_1);
         m2 = new Motor(hw, Constants.Shooter.MOTOR_2);
@@ -43,6 +52,15 @@ public class ShooterSubsystem {
         holdReleaseStartMs = 0L;
         shotInProgress = false;
         shotRequested = false;
+
+        //auton
+        autonActive = false;
+        autonShotsTotal = 0;
+        autonShotsFired = 0;
+        autonSpinStartMs = 0L;
+        autonLastShotCompleteMs = 0L;
+        autonHoldStartMs = 0L;
+        autonShotInProgress = false;
     }
 
     /** Hold flywheels at idle power. */
@@ -199,6 +217,132 @@ public class ShooterSubsystem {
         powerRampTimer.reset();
     }
     public double getCurrentPower() { return currentPower; }
+
+    /**
+     * Start an autonomous shooting sequence.
+     *
+     * Non-blocking: call updateAutonBurst(...) once per loop until it returns true.
+     */
+    public void startAutonBurst(int shots) {
+        if (shots <= 0) {
+            autonActive = false;
+            return;
+        }
+        autonActive = true;
+        autonShotsTotal = shots;
+        autonShotsFired = 0;
+
+        autonSpinStartMs = 0L;
+        autonLastShotCompleteMs = 0L;
+        autonHoldStartMs = 0L;
+        autonShotInProgress = false;
+    }
+
+    /** True while an auton burst is in progress. */
+    public boolean isAutonBurstActive() {
+        return autonActive;
+    }
+
+    /**
+     * Autonomous burst shooter sequence.
+     *
+     * Behavior:
+     *  1) Spin up the shooter (runToTarget()).
+     *  2) Once spun up, keep ramp engaged.
+     *  3) Wait for spin-up to be ready.
+     *  4) Fire autonShotsTotal shots, using startStepForShot(), with
+     *     AUTON_INTER_SHOT_DWELL_MS between *completed* shots.
+     *  5) After the final shot completes, wait AUTON_SHOOTER_HOLD_MS to
+     *     ensure the note is clear of the shooter.
+     *  6) Idle the shooter.
+     *  7) Put ramp down.
+     *  8) Return true to signal completion.
+     *
+     * Call once per loop while autonActive. Returns:
+     *   - true  => sequence finished (or never started because shots <= 0)
+     *   - false => still in progress
+     */
+    public boolean updateAutonBurst(IndexerSubsystem indexer) {
+        if (!autonActive) {
+            return true;  // nothing to do
+        }
+
+        long now = System.currentTimeMillis();
+
+        // 1) Spin up the shooter
+        runToTarget();
+
+        // Initialize auton spin-up timestamp
+        if (autonSpinStartMs == 0L) {
+            autonSpinStartMs = now;
+        }
+
+        int spinupMs = Math.max(
+                Constants.Shooter.SPINUP_WAIT_MS,
+                Constants.Shooter.RAMP_UP_TIME_MS
+        );
+        boolean spunUp = (now - autonSpinStartMs) >= spinupMs;
+
+        boolean indexerStepping = indexer.isStepping();
+
+        // Track when an in-progress auton shot finishes
+        if (autonShotInProgress && !indexerStepping) {
+            autonShotInProgress = false;
+            autonLastShotCompleteMs = now;
+            autonShotsFired++;
+        }
+
+        // Still have shots to fire?
+        if (autonShotsFired < autonShotsTotal) {
+            // 2 + 3) Engage ramp once we're spun up and keep it up through all shots
+            setRampEngaged(spunUp);
+
+            // 4) Decide if we can start the next shot
+            boolean dwellOk;
+            if (autonShotsFired == 0 && autonLastShotCompleteMs == 0L) {
+                // First shot: as soon as spun up
+                dwellOk = true;
+            } else {
+                dwellOk = (autonLastShotCompleteMs > 0L) &&
+                        ((now - autonLastShotCompleteMs) >= Constants.Shooter.AUTON_INTER_SHOT_DWELL_MS);
+            }
+
+            if (spunUp && dwellOk && !autonShotInProgress && !indexerStepping) {
+                // Fire one shot: S0 is cleared & rotated by startStepForShot()
+                indexer.startStepForShot();
+                autonShotInProgress = true;
+            }
+
+            return false; // sequence still in progress
+        }
+
+        // All requested shots have been *commanded* and completed at this point.
+
+        // 5) After the final shot, wait AUTON_SHOOTER_HOLD_MS to ensure note is clear
+        if (autonHoldStartMs == 0L) {
+            // Start hold timer from last shot completion (or now as fallback)
+            autonHoldStartMs = (autonLastShotCompleteMs != 0L)
+                    ? autonLastShotCompleteMs
+                    : now;
+        }
+
+        long holdElapsed = now - autonHoldStartMs;
+        if (holdElapsed < Constants.Shooter.AUTON_SHOOTER_HOLD_MS) {
+            // During hold, keep ramp engaged if we're spun up
+            setRampEngaged(spunUp);
+            return false; // still holding
+        }
+
+        // 6) Idle the shooter
+        idle();
+
+        // 7) Put ramp down
+        setRampEngaged(false);
+
+        // 8) Mark complete
+        autonActive = false;
+        return true;
+    }
 
     private static double clip(double v, double lo, double hi) { return Math.max(lo, Math.min(hi, v)); }
 }
