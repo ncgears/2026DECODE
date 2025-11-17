@@ -6,12 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndexerSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndexerSubsystem.Item;
+import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 
 @TeleOp(name = "Test_Intake_Indexer", group = "Diagnostics")
 public class Test_Intake_Indexer extends OpMode {
 
     private IntakeSubsystem intake;
     private IndexerSubsystem indexer;
+    private ShooterSubsystem shooter;
 
     // Shared edge-detect state (used in both init_loop and loop)
     private boolean wasStepping   = false;
@@ -25,6 +27,7 @@ public class Test_Intake_Indexer extends OpMode {
     public void init() {
         intake  = new IntakeSubsystem(hardwareMap);
         indexer = new IndexerSubsystem(hardwareMap);
+        shooter = new ShooterSubsystem(hardwareMap);
 
         wasStepping          = indexer.isStepping();
         lastLTPressed        = false;
@@ -38,7 +41,7 @@ public class Test_Intake_Indexer extends OpMode {
     @Override
     public void init_loop() {
         // Same indexer behavior as in run loop, but without intake control.
-        handleIndexer(true);
+        handleIndexer(true, true);
         telemetry.update();
     }
 
@@ -46,12 +49,16 @@ public class Test_Intake_Indexer extends OpMode {
     public void start() {
         lastStepDetectedColor = false;
         lastDetectedItem      = indexer.getS1L();
+        shooter.resetFireControl();
     }
 
     @Override
     public void loop() {
+        boolean shootTrigger = gamepad2.right_trigger > 0.5;
+        boolean autoAdvanceEnabled = !shootTrigger;
+
         // Indexer behavior
-        handleIndexer(false);
+        handleIndexer(false, autoAdvanceEnabled);
 
         // Intake control (same mapping as Bot_Testing)
         boolean intakeForward = gamepad2.x && !gamepad2.left_bumper;
@@ -64,6 +71,10 @@ public class Test_Intake_Indexer extends OpMode {
         } else {
             intake.stop();
         }
+
+        // Shooter control + firing on g2.right_trigger
+        shooter.handleRightTrigger(shootTrigger, indexer);
+        shooter.loop();  // apply soft power ramp and set motors
 
         telemetry.addLine("== Intake ==");
         telemetry.addData("command",
@@ -78,7 +89,7 @@ public class Test_Intake_Indexer extends OpMode {
     // Shared logic for INIT and RUN
     // ------------------------------------------------------------
 
-    private void handleIndexer(boolean inInit) {
+    private void handleIndexer(boolean inInit, boolean autoAdvanceEnabled) {
         // Keep indexer state machine updated
         indexer.loop();
         boolean isStepping = indexer.isStepping();
@@ -119,19 +130,26 @@ public class Test_Intake_Indexer extends OpMode {
 
         boolean queueFull = isQueueFull();
 
-        if (!isStepping && !queueFull) {
-            boolean colorPresent = indexer.detectAtS1L();
-            if (colorPresent) {
-                lastStepDetectedColor = true;
-                lastDetectedItem      = indexer.getS1L();
-                indexer.startStep(); // automatically advance away from the ball
+        if (autoAdvanceEnabled) {
+            if (!isStepping && !queueFull) {
+                boolean colorPresent = indexer.detectAtS1L();
+                if (colorPresent) {
+                    lastStepDetectedColor = true;
+                    lastDetectedItem = indexer.getS1L();
+                    indexer.startStep(); // automatically advance away from the ball
+                }
+            } else if (!isStepping && queueFull) {
+                // Optional: still allow detection to keep S1L's color correct,
+                // but do NOT auto-advance.
+                indexer.detectAtS1L();
             }
-        } else if (!isStepping && queueFull) {
-            // Optional: still allow detection to keep S1L's color correct,
-            // but do NOT auto-advance.
-            indexer.detectAtS1L();
+        } else {
+            // While shooter is in charge of feeding, we can still sample color
+            // for telemetry / debugging, but MUST NOT auto-step.
+            if (!isStepping) {
+                indexer.detectAtS1L();
+            }
         }
-
         // ---- Telemetry ----
         telemetry.addLine(inInit ? "== INIT / Indexer ==" : "== RUN / Indexer ==");
         telemetry.addData("isStepping", isStepping);

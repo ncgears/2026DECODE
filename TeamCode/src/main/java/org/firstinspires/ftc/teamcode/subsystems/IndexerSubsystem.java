@@ -93,6 +93,26 @@ public class IndexerSubsystem {
         revSensorHealthy = revOk;
     }
 
+    /**
+     * Start a step where the S0 piece is being fed into the shooter.
+     *
+     * Semantics:
+     *  - The piece currently at S0 is considered GONE (shot) and is cleared
+     *    from the logical queue before we rotate.
+     *  - The step timing / jam detection is identical to startStep().
+     *
+     * Use this ONLY when the shooter ramp is up and we are intentionally
+     * feeding a game piece into the shooter.
+     */
+    public void startStepForShot() {
+        // Clear the artifact at S0; by the time the step completes,
+        // that physical piece has been launched and no longer exists.
+        q[s0Index] = Item.NONE;
+
+        // Then do a normal step.
+        startStep();
+    }
+
     /** Begin stepping forward one slot (S0->S2->S1L->S0). */
     public void startStep() {
         if (stepping) return;

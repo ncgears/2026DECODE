@@ -28,7 +28,7 @@ public class TeleOp_Main extends OpMode {
 
     private boolean useField = Constants.Drive.FIELD_CENTRIC_DEFAULT;
     private SlewRateLimiter slewX, slewY, slewR;
-    private boolean rtPrev=false; private long spinStartMs=0; private long holdReleaseStartMs=0; private int burstFeeds=0;
+    private boolean rtPrev=false; private long spinStartMs=0; private long holdReleaseStartMs=0;
 
     private boolean initHomed=false; private RecheckTask recheck=null;
 
@@ -113,7 +113,7 @@ public class TeleOp_Main extends OpMode {
         telemetry.update();
     }
 
-    @Override public void start() { rtPrev=false; spinStartMs=0; holdReleaseStartMs=0; burstFeeds=0; }
+    @Override public void start() { rtPrev=false; spinStartMs=0; holdReleaseStartMs=0; }
 
     @Override public void loop() {
         Gamepad g1 = gamepad1, g2 = gamepad2;
@@ -149,22 +149,21 @@ public class TeleOp_Main extends OpMode {
         indexer.loop();
 
         boolean rt = g2.right_trigger > 0.5;
-        if (rt && !rtPrev) { shooter.runToTarget(); spinStartMs=System.currentTimeMillis(); holdReleaseStartMs=0; burstFeeds=0; }
+        if (rt && !rtPrev) { shooter.runToTarget(); spinStartMs=System.currentTimeMillis(); holdReleaseStartMs=0; }
         if (rt) {
             shooter.runToTarget();
             long wait = Math.max(Constants.Shooter.SPINUP_WAIT_MS, Constants.Shooter.RAMP_UP_TIME_MS);
             boolean ready = (System.currentTimeMillis() - spinStartMs) >= wait;
-            if (ready && !indexer.isStepping() && burstFeeds < Constants.Shooter.MAX_BURST_FEEDS) {
+            if (ready && !indexer.isStepping()) {
                 shooter.setRampEngaged(true);
                 indexer.startStep();
-                burstFeeds++;
                 spinStartMs = System.currentTimeMillis() - (Constants.Shooter.SPINUP_WAIT_MS - Constants.Shooter.INTER_SHOT_DWELL_MS);
             }
         } else {
             shooter.setRampEngaged(false);
             if (holdReleaseStartMs == 0) holdReleaseStartMs = System.currentTimeMillis();
             if (System.currentTimeMillis() - holdReleaseStartMs >= Constants.Shooter.HOLD_AFTER_RELEASE_MS) {
-                shooter.idle(); burstFeeds = 0;
+                shooter.idle();
             }
         }
         rtPrev = rt; shooter.loop();

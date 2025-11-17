@@ -78,7 +78,7 @@ public final class Constants {
         // Feature toggle:
         // false => use discrete DIO purple/green channels
         // true  => use REV Color Sensor v3 (I2C) named "color" in the RC config
-        public static final boolean USE_REV_COLOR_SENSOR = true;
+        public static final boolean USE_REV_COLOR_SENSOR = false;
 
 
         // RC config names for indexer hardware
@@ -127,11 +127,10 @@ public final class Constants {
         public static final double RAMP_RETRACTED = 0.7; // servo position for safe idle
         public static final double RAMP_ENGAGED   = 0.5; // servo position to feed S0 into shooter
 
-        public static final int HOLD_AFTER_RELEASE_MS = 2000; // keep flywheels up to speed after RT release
+        public static final int HOLD_AFTER_RELEASE_MS = 1500; // keep flywheels up to speed after RT release
         public static final int INTER_SHOT_DWELL_MS   = 300;  // dwell between auto-advances (ms)
-        public static final int MAX_BURST_FEEDS       = 3;    // cap feeds per RT hold
 
-        public static final int SPINUP_WAIT_MS   = 250; // wait at least this long before first feed
+        public static final int SPINUP_WAIT_MS   = 275; // wait at least this long before first feed
         public static final int RAMP_UP_TIME_MS  = 0;   // optional power ramp time (0 = instant)
         public static final boolean USE_RPM_MODE = false; // future switch to PIDF RPM mode
         public static final int SHOOTER_ENCODER_CPR = 28; // shooter1 built-in encoder CPR
