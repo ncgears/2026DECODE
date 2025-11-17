@@ -75,10 +75,34 @@ public final class Constants {
 
     /** Indexer carousel configuration (CR servo + slot/colour sensing). */
     public static final class Indexer {
-        public static final String SERVO = "indexer";       // CR servo name
-        public static final String SLOT_LIMIT = "indexslot";// NC slot switch (HIGH normal, LOW pressed)
-        public static final String PURPLE_DI = "indexpurple"; // ACTIVE-LOW using level shifter when purple detected at S1L
-        public static final String GREEN_DI  = "indexgreen";  // ACTIVE-LOW using level shifter when green detected at S1L
+        // Feature toggle:
+        // false => use discrete DIO purple/green channels
+        // true  => use REV Color Sensor v3 (I2C) named "color" in the RC config
+        public static final boolean USE_REV_COLOR_SENSOR = true;
+
+
+        // RC config names for indexer hardware
+        public static final String SERVO      = "indexer";        // CR servo name
+        public static final String SLOT_LIMIT = "indexslot";      // NC slot switch (HIGH normal, LOW pressed)
+
+        // Discrete color sensor DIO channels (ACTIVE-LOW via level shifter)
+        public static final String PURPLE_DI  = "indexpurple";    // LOW when purple detected at S1L
+        public static final String GREEN_DI   = "indexgreen";     // LOW when green  detected at S1L
+
+        // REV Color Sensor v3 config (used when USE_REV_COLOR_SENSOR = true)
+        public static final String COLOR_SENSOR = "color";        // RC config name for REV-31-1557
+
+        // Basic thresholds for classifying REV color sensor readings.
+        // These are intentionally simple; you'll tune them in your calibration OpMode.
+        public static final int   COLOR_ALPHA_MIN = 100;   // below this, treat as "no piece"
+        public static final float COLOR_MIN_SAT   = 0.30f; // very low saturation => probably not reliable
+
+        // Hue ranges (degrees 0..360) for game-piece colors.
+        // Approximate, to be refined in your calibration OpMode.
+        public static final float PURPLE_HUE_MIN = 205f;
+        public static final float PURPLE_HUE_MAX = 255f;
+        public static final float GREEN_HUE_MIN  = 130f;
+        public static final float GREEN_HUE_MAX  = 170f;
 
         public static final double POWER_FWD = 0.80;           // CR servo forward power
         public static final boolean DIR_FORWARD_IS_POSITIVE = false; // flip if wiring requires

@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import android.graphics.Color;
 
 import org.firstinspires.ftc.teamcode.constants.Constants;
 
@@ -63,6 +65,8 @@ public class Test_IO_Mechanisms extends OpMode {
     private DigitalChannel diFlagB;       // asserted LOW
     private DigitalChannel diAutoA;       // asserted LOW
     private DigitalChannel diAutoB;       // asserted LOW
+    private ColorSensor colorSensor;      // REV Color Sensor v3
+    private final boolean useRevColorSensor = Constants.Indexer.USE_REV_COLOR_SENSOR;  // cached toggle
 
     // Cached forward power for indexer with direction sign
     private double indexerFwdPower;
@@ -107,6 +111,11 @@ public class Test_IO_Mechanisms extends OpMode {
         diFlagB.setMode(DigitalChannel.Mode.INPUT);
         diAutoA.setMode(DigitalChannel.Mode.INPUT);
         diAutoB.setMode(DigitalChannel.Mode.INPUT);
+        try {
+            colorSensor = hw.get(ColorSensor.class, Constants.Indexer.COLOR_SENSOR);
+        } catch (Exception e) {
+            colorSensor = null;
+        }
 
         telemetry.addLine("Diagnostics ready: test digital IO + indexer/ramp/intake/shooter");
     }
@@ -170,6 +179,52 @@ public class Test_IO_Mechanisms extends OpMode {
         telemetry.addData("auto sw a (LOW=assert)", fmt(diAutoA), assertedLOW(diAutoA) ? "ASSERTED" : "open");
         telemetry.addData("auto sw b (LOW=assert)", fmt(diAutoB), assertedLOW(diAutoB) ? "ASSERTED" : "open");
 
+        telemetry.addLine("== Indexer Color Debug ==");
+
+        // Show which path we *intend* to use
+        telemetry.addData("mode", useRevColorSensor ? "REV Color Sensor v3" : "Discrete DIO");
+
+        // DIO-based color view (still useful even when REV sensor is present)
+        boolean dioPurple = assertedPNP(diIndexPurple);
+        boolean dioGreen  = assertedPNP(diIndexGreen);
+        String dioClass;
+        if (dioPurple ^ dioGreen) {
+            dioClass = dioPurple ? "PURPLE" : "GREEN";
+        } else if (!dioPurple && !dioGreen) {
+            dioClass = "NONE";
+        } else {
+            dioClass = "AMBIGUOUS (both HIGH)";
+        }
+        telemetry.addData("DIO color",
+                "%s (purple=%s, green=%s)",
+                dioClass,
+                dioPurple ? "1" : "0",
+                dioGreen  ? "1" : "0");
+
+        // REV Color Sensor telemetry
+        if (colorSensor != null) {
+            int r = colorSensor.red();
+            int g = colorSensor.green();
+            int b = colorSensor.blue();
+            int a = colorSensor.alpha();
+
+            float[] hsv = new float[3];
+            Color.RGBToHSV(r, g, b, hsv);
+            float h = hsv[0];
+            float s = hsv[1];
+            float v = hsv[2];
+
+            telemetry.addData("REV rgb+a", "r=%d g=%d b=%d a=%d", r, g, b, a);
+            telemetry.addData("REV hsv",   "h=%.1f s=%.3f v=%.3f", h, s, v);
+
+            // Simple classification using same thresholds as IndexerSubsystem
+            String revClass = classifyRevArtifact(h, s, a);
+            telemetry.addData("REV class", revClass);
+        } else {
+            telemetry.addData("REV sensor", "not present or not configured");
+        }
+
+
         telemetry.addLine("== Outputs ==");
         telemetry.addData("Indexer CR", "%.2f", idxPower);
         telemetry.addData("Ramp pos", "%.2f", ramp.getPosition());
@@ -194,4 +249,27 @@ public class Test_IO_Mechanisms extends OpMode {
     private boolean assertedNC(DigitalChannel ch)   { return !ch.getState(); } // NC switches: LOW when pressed
     private boolean assertedPNP(DigitalChannel ch)  { return  ch.getState(); } // PNP color lines: HIGH when detected
     private boolean assertedLOW(DigitalChannel ch)  { return !ch.getState(); } // Flag/Auto: asserted when LOW
+    // ---- Color classification helper (REV sensor) ----
+    private String classifyRevArtifact(float hueDeg, float sat, int alpha) {
+        // Basic "piece present" check
+        if (alpha < Constants.Indexer.COLOR_ALPHA_MIN) {
+            return "NONE (alpha low)";
+        }
+        if (sat < Constants.Indexer.COLOR_MIN_SAT) {
+            return "NONE (sat low)";
+        }
+
+        if (hueDeg >= Constants.Indexer.PURPLE_HUE_MIN &&
+                hueDeg <= Constants.Indexer.PURPLE_HUE_MAX) {
+            return "PURPLE";
+        }
+
+        if (hueDeg >= Constants.Indexer.GREEN_HUE_MIN &&
+                hueDeg <= Constants.Indexer.GREEN_HUE_MAX) {
+            return "GREEN";
+        }
+
+        return "UNKNOWN (hue out of bands)";
+    }
+
 }

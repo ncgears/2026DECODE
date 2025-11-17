@@ -141,12 +141,14 @@ public class Test_Intake_Indexer extends OpMode {
         telemetry.addData("S1L", indexer.getS1L());
         telemetry.addData("S2",  indexer.getS2());
         telemetry.addData("lastDetectedItem", "%s (updatedThisLoop=%b)",
-                lastDetectedItem, lastStepDetectedColor);
+            lastDetectedItem, lastStepDetectedColor);
+        telemetry.addData("colorMode",
+            indexer.isRevColorSensorHealthy() ? "REV" : indexer.isDioColorAvailable() ? "DIO (fallback)" : "NO COLOR SENSOR");
     }
 
     private boolean isQueueFull() {
         return indexer.getS0()  != Item.NONE &&
-                indexer.getS1L() != Item.NONE &&
-                indexer.getS2()  != Item.NONE;
+            indexer.getS1L() != Item.NONE &&
+            indexer.getS2()  != Item.NONE;
     }
 }
