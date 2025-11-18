@@ -1,31 +1,184 @@
-[Hubs]
-Control Hub = 1
-Expansion Hub = 2
+======================================
+REV HUB CONFIG CHECKLIST — DECODE 2026
+======================================
 
-[Motors]
-fl drive  -> Hub: ______  Port: M____
-fr drive  -> Hub: ______  Port: M____
-rl drive  -> Hub: ______  Port: M____
-rr drive  -> Hub: ______  Port: M____
-intake    -> Hub: ______  Port: M____
-shooter1  -> Hub: ______  Port: M____
-shooter2  -> Hub: ______  Port: M____
-elev      -> Hub: ______  Port: M____
+Use this sheet to verify:
+- RC config device NAMES
+- Hub / port assignments
+- Wire tape colors
+- Any special notes (gear ratio, adapters, etc.)
 
-[Servos]
-indexer (CR) -> Hub: ______  Port: S____
-ramp   (STD) -> Hub: ______  Port: S____
+======================================
+CONTROL HUB (CH)
+======================================
 
-[Digital Inputs]
-indexslot   -> Hub: ______  Channel: D____  (INPUT, NC: LOW when pressed)
-indexpurple -> Hub: ______  Channel: D____  (INPUT, HIGH on purple)
-indexgreen  -> Hub: ______  Channel: D____  (INPUT, HIGH on green)
-elevlim     -> Hub: ______  Channel: D____  (INPUT, NC: LOW when pressed)
-flag sw a   -> Hub: ______  Channel: D____  (INPUT, asserted = LOW)
-flag sw b   -> Hub: ______  Channel: D____  (INPUT, asserted = LOW)
-auto sw a   -> Hub: ______  Channel: D____  (INPUT, asserted = LOW)
-auto sw b   -> Hub: ______  Channel: D____  (INPUT, asserted = LOW)
+-- MOTORS (CH) -----------------------
 
-[Webcams]
-motifcam -> USB: ______ (Hub/port)
-odocam   -> USB: ______ (Hub/port)
+[ ] Name: fr drive
+    Hub: CONTROL  Port: M3
+    Type: HD Hex Motor, 15:1 Gearbox
+    Tape Color: ______________________
+    Notes: Gearbox Yellow toward frame
+
+[ ] Name: rr drive
+    Hub: CONTROL  Port: M2
+    Type: HD Hex Motor, 15:1 Gearbox
+    Tape Color: ______________________
+    Notes: Gearbox Yellow toward frame
+
+[ ] Name: intake
+    Hub: CONTROL  Port: M1
+    Type: HD Hex Motor, 3:1 Gearbox
+    Tape Color: ______________________
+    Notes: Gearbox Yellow toward intake
+
+[ ] Name: shooter1
+    Hub: CONTROL  Port: M0
+    Type: HD Hex Motor, 1:1 Gearbox
+    Tape Color: ______________________
+    Notes: Matches shooter2 (paired)
+
+
+-- SERVOS (CH) -----------------------
+
+[ ] Name: ramp
+    Hub: CONTROL  Port: SERVO 0
+    Type: goBilda Positional Servo
+    Tape Color: green
+    Notes: ___________________________
+
+[ ] Name: indexer
+    Hub: CONTROL  Port: SERVO 1
+    Type: goBilda CR Servo
+    Tape Color: orange
+    Notes: ___________________________
+
+
+-- DIGITAL INPUTS (DIO, CH) ----------
+
+[ ] Name: indexslot
+    Hub: CONTROL  Port: DIO 2
+    Role: Indexer Slot Limit
+    Tape Color: ______________________
+    Notes: NC switch, active LOW
+
+[ ] Name: elevlim
+    Hub: CONTROL  Port: DIO 3
+    Role: Elevator Limit
+    Tape Color: ______________________
+    Notes: NC switch, active LOW
+
+[ ] Name: flag sw a
+    Hub: CONTROL  Port: DIO 0
+    Role: Alliance Number Panel (bit A)
+    Tape Color: orange/red
+    Notes: Active LOW - closer to edge
+
+[ ] Name: flag sw b
+    Hub: CONTROL  Port: DIO 1
+    Role: Alliance Number Panel (bit B)
+    Tape Color: orange/white
+    Notes: Active LOW - closer to center
+
+
+-- I2C DEVICES (CH) ------------------
+
+[ ] Name: pinpoint
+    Hub: CONTROL  Port: I2C 1
+    Device: goBilda Pinpoint Computer
+    Tape Color: white
+    Notes: 2-wheel odometry; see Pinpoint docs
+
+
+
+======================================
+EXPANSION HUB (EH)
+======================================
+
+-- MOTORS (EH) -----------------------
+
+[ ] Name: fl drive
+    Hub: EXPANSION  Port: M3
+    Type: HD Hex Motor, 15:1 Gearbox
+    Tape Color: ______________________
+    Notes: Gearbox Yellow toward frame
+
+[ ] Name: rl drive
+    Hub: EXPANSION  Port: M2
+    Type: HD Hex Motor, 15:1 Gearbox
+    Tape Color: ______________________
+    Notes: Gearbox Yellow toward frame
+
+[ ] Name: shooter2
+    Hub: EXPANSION  Port: M1
+    Type: HD Hex Motor, 1:1 Gearbox
+    Tape Color: ______________________
+    Notes: Matches shooter1 (paired)
+
+[ ] Name: elev
+    Hub: EXPANSION  Port: M0
+    Type: HD Hex Motor, ?:1 Gearbox
+    Tape Color: ______________________
+
+-- DIGITAL INPUTS (DIO, EH) ----------
+
+[ ] Name: indexpurple
+    Hub: EXPANSION  Port: DIO 3
+    Role: Purple Detect at S1L (via level shifter)
+    Tape Color: ______________________
+    Notes: Active LOW
+
+[ ] Name: indexgreen
+    Hub: EXPANSION  Port: DIO 2
+    Role: Green Detect at S1L (via level shifter)
+    Tape Color: ______________________
+    Notes: Active LOW
+
+[ ] Name: auto sw a
+    Hub: EXPANSION  Port: DIO 0
+    Role: Auto Select Camera Mounts (bit A)
+    Tape Color: ______________________
+    Notes: Active LOW
+
+[ ] Name: auto sw b
+    Hub: EXPANSION  Port: DIO 1
+    Role: Auto Select Camera Mounts (bit B)
+    Tape Color: ______________________
+    Notes: Active LOW
+
+
+-- I2C DEVICES (EH) ------------------
+
+[ ] Name: imu
+    Hub: EXPANSION  Port: I2C 0
+    Device: BNO055 / REV IMU
+    Tape Color: n/a (internal)
+    Notes: Primary IMU for TeleOp/Auto
+
+[ ] Name: color
+    Hub: EXPANSION  Port: I2C 1
+    Device: REV Color Sensor
+    Tape Color: ______________________
+    Notes: Only used if Indexer is in color-sensor mode
+
+
+
+======================================
+USB CAMERAS (RC CONFIG)
+======================================
+
+[ ] Name: motifcam
+    Device: OV9281 (updated)
+    USB: front (black)
+    Serial: ov9281
+    Tape Color: n/a
+    Notes: Motif / apriltag camera for OBELISK tags
+
+[ ] Name: odocam
+    Device: OV9281 (default)
+    USB: rear (blue)
+    Serial: UC762
+    Tape Color: n/a
+    Notes: Odometry / goal tag camera
+
+
