@@ -269,5 +269,19 @@ public class IndexerSubsystem {
     public boolean isRevColorSensorHealthy() { return revSensorHealthy; }
     public boolean isDioColorAvailable()     { return dioColorAvailable; }
 
+    public void startUnjamReverse() {
+        if (stepping) return;
+        stepping = true;
+        stepTimer.reset();
+        lastStepTimedOut = false;
+        double p = Constants.Indexer.POWER_FWD * (Constants.Indexer.DIR_FORWARD_IS_POSITIVE ? -1.0 : +1.0);
+        servo.setPower(p);
+    }
+
+    public void stopUnjam() {
+        stopServo();
+        stepping = false;
+    }
+
     private static int mod(int a,int b){ int m=a%b; return m<0?m+b:m; }
 }
