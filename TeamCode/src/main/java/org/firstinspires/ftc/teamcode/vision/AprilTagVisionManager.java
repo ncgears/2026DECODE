@@ -46,6 +46,7 @@ public class AprilTagVisionManager {
                 .setCamera(cam)
                 .addProcessor(procMotif)
                 .setCameraResolution(new Size(Constants.Vision.STREAM_WIDTH, Constants.Vision.STREAM_HEIGHT))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .enableLiveView(previewsOn)
                 .build();
     }
@@ -57,6 +58,7 @@ public class AprilTagVisionManager {
                 .setCamera(cam)
                 .addProcessor(procOdo)
                 .setCameraResolution(new Size(Constants.Vision.STREAM_WIDTH, Constants.Vision.STREAM_HEIGHT))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .enableLiveView(previewsOn)
                 .build();
     }

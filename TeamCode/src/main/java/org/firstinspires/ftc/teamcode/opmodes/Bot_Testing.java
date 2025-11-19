@@ -57,7 +57,7 @@ import org.firstinspires.ftc.teamcode.util.SlewRateLimiter;
  *   - BACK on either pad     => stop intake/indexer/shooter, retract ramp (drive keeps obeying sticks)
  */
 @TeleOp(name = "Bot_Testing", group = "Diagnostics")
-//@Disabled
+@Disabled
 public class Bot_Testing extends OpMode {
 
     // ---- Drive ----
