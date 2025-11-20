@@ -138,6 +138,9 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
         // ---- (c) Rotate queue for shooting order ----
         indexer.rotateForMotif(motif);
 
+        playAudio(String.format("%s", alliance.toString()),500);
+        playAudio(String.format("%s", autoMode.toString()),500);
+        playAudio(String.format("%s", motif),500);
 
         // ---- (d) Resolve shooting & stack poses for this alliance/mode ----
         Pose2d shootPose = getShootPoseFor(alliance, autoMode);

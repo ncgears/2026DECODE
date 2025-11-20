@@ -105,4 +105,14 @@ public abstract class BaseAutoRR extends LinearOpMode {
             Actions.runBlocking(routine);
         }
     }
+
+    public void playAudio(String text, int delayMs) {
+        try {
+            telemetry.speak(text);
+            wait(delayMs);
+        } catch (Exception e) {
+            //do nothing
+        }
+    }
+
 }
