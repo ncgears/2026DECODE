@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IndexerSubsystem.Item;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 
 @TeleOp(name = "Test_Intake_Indexer", group = "Diagnostics")
+@Disabled
 public class Test_Intake_Indexer extends OpMode {
 
     private IntakeSubsystem intake;

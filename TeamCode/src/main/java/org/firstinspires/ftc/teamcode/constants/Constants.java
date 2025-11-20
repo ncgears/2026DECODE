@@ -122,7 +122,7 @@ public final class Constants {
         public static final String RAMP_SERVO = "ramp";  // feed ramp servo
 
         public static final double IDLE_POWER   = 0.15; // always-on idle to reduce inrush
-        public static final double TARGET_POWER = 0.90; // open-loop target for shots
+        public static final double TARGET_POWER = 1.0; // open-loop target for shots
 
         public static final double RAMP_RETRACTED = 0.7; // servo position for safe idle
         public static final double RAMP_ENGAGED   = 0.5; // servo position to feed S0 into shooter

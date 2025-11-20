@@ -16,7 +16,7 @@ public class ElevatorSubsystem {
     private double commanded = 0.0;
 
     public ElevatorSubsystem(HardwareMap hw) {
-        motor = hw.get(Motor.class, Constants.Elevator.MOTOR);
+        motor = new Motor(hw, Constants.Elevator.MOTOR);
         limitNC = hw.get(DigitalChannel.class, Constants.Elevator.LIMIT_SW);
         limitNC.setMode(DigitalChannel.Mode.INPUT);
 //        motor.setMode(com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER);
