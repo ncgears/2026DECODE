@@ -140,7 +140,9 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
 
         playAudio(String.format("%s", alliance.toString()),500);
         playAudio(String.format("%s", autoMode.toString()),500);
-        playAudio(String.format("%s", motif),500);
+        playAudio(String.format("%s", motifDetected),500);
+        T.t(1, "Motif code", motifDetected);
+        telemetry.update();
 
         // ---- (d) Resolve shooting & stack poses for this alliance/mode ----
         Pose2d shootPose = getShootPoseFor(alliance, autoMode);
@@ -167,88 +169,6 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
         // f/g/e) For each stack: go collect, come back, rotate for motif, shoot.
         int stackCount = Math.min(MAX_STACKS, stacks.length);
         Pose2d currentPose = shootPose;
-
-        for (int i = 0; i < stackCount; i++) {
-            Pose2d stackPose = stacks[i];
-
-            // Compute a pre-approach pose SPIKE_APPROACH_OFFSET farther from the wall.
-            double approachSign = Math.signum(stackPose.position.y); // +1 for +Y wall, -1 for -Y wall
-            double preY = stackPose.position.y + approachSign * SPIKE_APPROACH_OFFSET;
-
-            Pose2d preApproach = new Pose2d(
-                    new Vector2d(stackPose.position.x, preY),
-                    stackPose.heading
-            );
-
-            // f) Dogleg: move to pre-approach, then straight into the spike.
-            Action driveToStackPre = drive.actionBuilder(currentPose)
-                    .lineToX(preApproach.position.x)
-                    .lineToY(preApproach.position.y)
-                    .build();
-
-            Action driveIntoStack = drive.actionBuilder(preApproach)
-                    .lineToX(stackPose.position.x)
-                    .lineToY(stackPose.position.y)
-                    .build();
-
-            Action enableIntake = new Action() {
-                private boolean done = false;
-                @Override
-                public boolean run(@NonNull TelemetryPacket packet) {
-                    if (!done) {
-                        intake.intake();
-                        done = true;
-                    }
-                    return false;
-                }
-            };
-
-            Action disableIntake = new Action() {
-                private boolean done = false;
-                @Override
-                public boolean run(@NonNull TelemetryPacket packet) {
-                    if (!done) {
-                        intake.stop();
-                        done = true;
-                    }
-                    return false;
-                }
-            };
-
-            sequence.add(new SequentialAction(
-                    enableIntake,
-                    driveToStackPre,
-                    driveIntoStack,
-                    disableIntake
-            ));
-
-            // g) Return to shooting pose, rotate for motif, then shoot...
-            Action backToShoot = drive.actionBuilder(stackPose)
-                    .lineToX(shootPose.position.x)
-                    .lineToY(shootPose.position.y)
-                    .build();
-
-            Action rotateForMotif = new Action() {
-                private boolean done = false;
-                @Override
-                public boolean run(@NonNull TelemetryPacket packet) {
-                    if (!done) {
-                        indexer.rotateForMotif(motif);
-                        done = true;
-                    }
-                    return false;
-                }
-            };
-
-            sequence.add(new SequentialAction(
-                    backToShoot,
-                    rotateForMotif,
-                    makeShootBurstAction(
-                            shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "cycle" + (i + 1))
-            ));
-
-            currentPose = shootPose;
-        }
 
         return new SequentialAction(sequence.toArray(new Action[0]));
     }

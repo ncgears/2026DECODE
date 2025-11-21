@@ -104,10 +104,10 @@ public final class Constants {
         public static final float GREEN_HUE_MIN  = 130f;
         public static final float GREEN_HUE_MAX  = 170f;
 
-        public static final double POWER_FWD = 0.80;           // CR servo forward power
+        public static final double POWER_FWD = 0.90;           // CR servo forward power
         public static final boolean DIR_FORWARD_IS_POSITIVE = false; // flip if wiring requires
         public static final int DEBOUNCE_MS = 25;               // debounce for slot switch
-        public static final int STEP_TIMEOUT_MS = 700;          // stop & flag jam if exceeded
+        public static final int STEP_TIMEOUT_MS = 1000;          // stop & flag jam if exceeded
         public static final boolean AUTO_ADVANCE_ON_DETECT = true; // auto-step when color seen at S1L
 
         public static final int QUEUE_SIZE = 3; // S0 (shoot), S1L (load), S2
@@ -125,7 +125,7 @@ public final class Constants {
         public static final double TARGET_POWER = 1.0; // open-loop target for shots
 
         public static final double RAMP_RETRACTED = 0.7; // servo position for safe idle
-        public static final double RAMP_ENGAGED   = 0.5; // servo position to feed S0 into shooter
+        public static final double RAMP_ENGAGED   = 0.48; // servo position to feed S0 into shooter
 
         public static final int HOLD_AFTER_RELEASE_MS = 1500; // keep flywheels up to speed after RT release
         public static final int INTER_SHOT_DWELL_MS   = 300;  // dwell between auto-advances (ms)

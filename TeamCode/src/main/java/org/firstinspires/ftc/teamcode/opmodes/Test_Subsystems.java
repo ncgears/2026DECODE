@@ -34,7 +34,7 @@ import java.util.List;
  *  - g1.BACK or g2.BACK: zero IMU + Pinpoint headings (works in INIT and RUN).
  */
 @TeleOp(name = "Test_Subsystems", group = "Diagnostics")
-@Disabled
+//@Disabled
 public class Test_Subsystems extends OpMode {
 
     private AllianceDetector allianceDetector;
