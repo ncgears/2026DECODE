@@ -68,9 +68,10 @@ public final class Constants {
     /** Intake roller configuration. */
     public static final class Intake {
         public static final String MOTOR = "intake";  // RC config name
-        public static final double POWER_IN  = 0.90;  // forward intake power
+        public static final double POWER_IN  = 0.80;  // forward intake power
         public static final double POWER_OUT = 0.75;  // reverse outtake power
         public static final int    PAUSE_DURING_INDEX_MS = 200; // pause intake while indexer steps
+        public static final int FULL_QUEUE_SPITBACK_MS = 300; // run the intake in reverse when queue is full for this many ms
     }
 
     /** Indexer carousel configuration (CR servo + slot/colour sensing). */
