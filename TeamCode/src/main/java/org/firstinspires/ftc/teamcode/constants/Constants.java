@@ -125,7 +125,7 @@ public final class Constants {
         public static final double TARGET_POWER = 1.0; // open-loop target for shots
 
         public static final double RAMP_RETRACTED = 0.7; // servo position for safe idle
-        public static final double RAMP_ENGAGED   = 0.48; // servo position to feed S0 into shooter
+        public static final double RAMP_ENGAGED   = 0.47; // servo position to feed S0 into shooter
 
         public static final int HOLD_AFTER_RELEASE_MS = 1500; // keep flywheels up to speed after RT release
         public static final int INTER_SHOT_DWELL_MS   = 300;  // dwell between auto-advances (ms)
@@ -135,7 +135,7 @@ public final class Constants {
         public static final boolean USE_RPM_MODE = false; // future switch to PIDF RPM mode
         public static final int SHOOTER_ENCODER_CPR = 28; // shooter1 built-in encoder CPR
 
-        public static final int AUTON_INTER_SHOT_DWELL_MS = 250;  // tune as needed
+        public static final int AUTON_INTER_SHOT_DWELL_MS = 350;  // tune as needed
         public static final int AUTON_SHOOTER_HOLD_MS     = 350;  // after last shot
 
         public static final boolean JAM_RETRACT_IMMEDIATE = true; // on jam, retract ramp & idle immediately
@@ -161,6 +161,9 @@ public final class Constants {
         public static final String ODO_CAM_NAME   = "odocam";   // reads goal tags (20 blue, 24 red)
         public static final int STREAM_WIDTH  = 1280; // default stream resolution (speed)
         public static final int STREAM_HEIGHT = 720;
+
+        // Max time to wait in auto for motif detection before falling back to NONE (ms)
+        public static final long MOTIF_SCAN_TIMEOUT_MS = 2000;
 
         // Enable / disable AprilTag-based odometry fusion during autonomous.
         public static final boolean ODO_FUSE_DURING_AUTO = true;
