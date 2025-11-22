@@ -40,7 +40,15 @@ public class AprilTagVisionManager {
 
     private void buildMotifPortal() {
         if (portalMotif != null) return;
-        procMotif = new AprilTagProcessor.Builder().setTagLibrary(lib).build();
+        procMotif = new AprilTagProcessor.Builder()
+            .setTagLibrary(lib)
+            .setLensIntrinsics(// Lens intrinsics from Constants.Vision (odo cam calibration)
+                Constants.Vision.ODO_FX,
+                Constants.Vision.ODO_FY,
+                Constants.Vision.ODO_CX,
+                Constants.Vision.ODO_CY
+            )
+            .build();
         WebcamName cam = hw.get(WebcamName.class, Constants.Vision.MOTIF_CAM_NAME);
         portalMotif = new VisionPortal.Builder()
                 .setCamera(cam)
@@ -52,7 +60,16 @@ public class AprilTagVisionManager {
     }
     private void buildOdoPortal() {
         if (portalOdo != null) return;
-        procOdo = new AprilTagProcessor.Builder().setTagLibrary(lib).build();
+        procOdo = new AprilTagProcessor.Builder()
+            .setTagLibrary(lib)
+            .setTagLibrary(lib)
+            .setLensIntrinsics(// Lens intrinsics from Constants.Vision (odo cam calibration)
+                    Constants.Vision.ODO_FX,
+                    Constants.Vision.ODO_FY,
+                    Constants.Vision.ODO_CX,
+                    Constants.Vision.ODO_CY
+            )
+            .build();
         WebcamName cam = hw.get(WebcamName.class, Constants.Vision.ODO_CAM_NAME);
         portalOdo = new VisionPortal.Builder()
                 .setCamera(cam)
