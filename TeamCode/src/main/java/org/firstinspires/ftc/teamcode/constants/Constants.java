@@ -260,5 +260,10 @@ public final class Constants {
         public static final String AUTO_B  = "auto sw b";
     }
 
+    /** Global Constants. */
+    public static final class Global {
+        public static final boolean ENABLE_DASHBOARD = false;
+    }
+
     private Constants() {}
 }
