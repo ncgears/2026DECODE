@@ -67,18 +67,18 @@ public final class MecanumDrive {
         public double trackWidthTicks = 0;
 
         // feedforward parameters (in tick units)
-        public double kS = 0.1;
-        public double kV = 1.0;
-        public double kA = 0.0;
+        public double kS = Constants.RoadRunner.kS;
+        public double kV = Constants.RoadRunner.kV;
+        public double kA = Constants.RoadRunner.kA;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 50;
+        public double maxWheelVel = Constants.RoadRunner.MAX_VEL;
         public double minProfileAccel = -30;
         public double maxProfileAccel = 50;
 
         // turn profile parameters (in radians)
-        public double maxAngVel = Math.PI; // shared with path
-        public double maxAngAccel = Math.PI;
+        public double maxAngVel = Constants.RoadRunner.MAX_ANG_VEL; // shared with path
+        public double maxAngAccel = Constants.RoadRunner.MAX_ANG_ACCEL;
 
         // path controller gains
         public double axialGain = 2.0;
@@ -137,11 +137,10 @@ public final class MecanumDrive {
             imu = lazyImu.get();
 
             // TODO: reverse encoders if needed
-            leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-            leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-            rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-            rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
-
+            leftFront.setDirection(Constants.RoadRunner.INVERT_FL_ENC ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+            leftBack.setDirection(Constants.RoadRunner.INVERT_RL_ENC ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+            rightFront.setDirection(Constants.RoadRunner.INVERT_FR_ENC ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+            rightBack.setDirection(Constants.RoadRunner.INVERT_RR_ENC ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
 
             this.pose = pose;
         }
@@ -239,7 +238,10 @@ public final class MecanumDrive {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // TODO: reverse motor directions if needed
-        //   leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(Constants.RoadRunner.INVERT_FL_MOTOR ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+        leftBack.setDirection(Constants.RoadRunner.INVERT_RL_MOTOR ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+        rightFront.setDirection(Constants.RoadRunner.INVERT_FR_MOTOR ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+        rightBack.setDirection(Constants.RoadRunner.INVERT_RR_MOTOR ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
 
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html

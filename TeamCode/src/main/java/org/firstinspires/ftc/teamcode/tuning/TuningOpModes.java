@@ -37,6 +37,7 @@ import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.TwoDeadWheelLocalizer;
+import org.firstinspires.ftc.teamcode.constants.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +47,7 @@ public final class TuningOpModes {
     public static final Class<?> DRIVE_CLASS = MecanumDrive.class;
 
     public static final String GROUP = "quickstart";
-    public static final boolean DISABLED = true;
+    public static final boolean DISABLED = false;
 
     private TuningOpModes() {}
 
@@ -63,8 +64,8 @@ public final class TuningOpModes {
         GoBildaPinpointDriver driver = pl.getDriver();
 
         return new PinpointView() {
-            GoBildaPinpointDriver.EncoderDirection parDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
-            GoBildaPinpointDriver.EncoderDirection perpDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+            GoBildaPinpointDriver.EncoderDirection parDirection = Constants.Pinpoint.X_POD_INVERT_ENCODER ? GoBildaPinpointDriver.EncoderDirection.REVERSED : GoBildaPinpointDriver.EncoderDirection.FORWARD;
+            GoBildaPinpointDriver.EncoderDirection perpDirection = Constants.Pinpoint.Y_POD_INVERT_ENCODER ? GoBildaPinpointDriver.EncoderDirection.REVERSED : GoBildaPinpointDriver.EncoderDirection.FORWARD;
 
             @Override
             public void update() {

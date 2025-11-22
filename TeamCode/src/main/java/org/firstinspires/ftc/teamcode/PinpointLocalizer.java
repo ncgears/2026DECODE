@@ -53,6 +53,11 @@ public final class PinpointLocalizer implements Localizer {
 //        pinpoint.setAngularUnit(AngleUnit.RADIANS);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
 
+        pinpoint.setEncoderDirections(
+                Constants.Pinpoint.X_POD_INVERT_ENCODER ? GoBildaPinpointDriver.EncoderDirection.REVERSED : GoBildaPinpointDriver.EncoderDirection.FORWARD,
+                Constants.Pinpoint.Y_POD_INVERT_ENCODER ? GoBildaPinpointDriver.EncoderDirection.REVERSED : GoBildaPinpointDriver.EncoderDirection.FORWARD
+        );
+
         setPose(initialPose);
         lastPoseInches = poseInches;
         lastSampleNanos = System.nanoTime();

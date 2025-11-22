@@ -8,6 +8,30 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  * Every constant has a short comment describing its purpose.
  */
 public final class Constants {
+    public static final class RoadRunner {
+        public static final double TRACK_WIDTH_IN = 14.0;
+        public static final double WHEEL_DIAMETER_IN = 3.0;
+        public static final double GEAR_RATIO = 15;
+        public static final double MAX_VEL = 30;
+        public static final double MAX_ACCEL = 30;
+        public static final double MAX_ANG_VEL = Math.PI;
+        public static final double MAX_ANG_ACCEL = Math.PI;
+        public static final double kS = 0.1;
+        public static final double kV = 0.1; //TODO: tune this!
+        public static final double kA = 0.0;
+
+        //invert encoders if needed
+        public static final boolean INVERT_FL_ENC = false;
+        public static final boolean INVERT_RL_ENC = false;
+        public static final boolean INVERT_FR_ENC = false;
+        public static final boolean INVERT_RR_ENC = false;
+        //invert motors if needed
+        public static final boolean INVERT_FL_MOTOR = true;
+        public static final boolean INVERT_RL_MOTOR = true;
+        public static final boolean INVERT_FR_MOTOR = false;
+        public static final boolean INVERT_RR_MOTOR = false;
+
+    }
     /** Drivetrain configuration and TeleOp behavior. */
     public static final class Drive {
         // RC config names for the four mecanum drive motors
@@ -222,6 +246,9 @@ public final class Constants {
         public static double X_POD_FORWARD_OFFSET_MM = 20.6;  // X pod x
         public static double Y_POD_FORWARD_OFFSET_MM = 20.6;  // Y pod x
 
+        public static boolean X_POD_INVERT_ENCODER = true; // flip if forward is not positive
+        public static boolean Y_POD_INVERT_ENCODER = false; // flip if left is not positive
+
         // Sideways positions of pods (you mostly care abouy X pod here)
         public static double X_POD_SIDE_OFFSET_MM = 87.2;   // X pod y (left is +)
         public static double Y_POD_SIDE_OFFSET_MM = -92.7;  // Y pod y (right is -)
@@ -263,7 +290,7 @@ public final class Constants {
 
     /** Global Constants. */
     public static final class Global {
-        public static final boolean ENABLE_DASHBOARD = false;
+        public static final boolean ENABLE_DASHBOARD = true;
     }
 
     private Constants() {}

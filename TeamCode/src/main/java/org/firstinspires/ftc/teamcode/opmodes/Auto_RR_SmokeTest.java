@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -23,6 +24,7 @@ import org.firstinspires.ftc.teamcode.util.AutoSelector.AutoMode;
  */
 @Config
 @Autonomous(name = "Auto_RR_SmokeTest", group = "RR")
+//@Disabled
 public final class Auto_RR_SmokeTest extends BaseAutoRR {
 
     // Dashboard-tunable distances (inches).

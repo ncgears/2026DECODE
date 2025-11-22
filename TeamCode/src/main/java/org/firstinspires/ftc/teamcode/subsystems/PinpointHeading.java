@@ -49,8 +49,8 @@ public class PinpointHeading implements HeadingProvider {
         // Default encoder directions: both FORWARD.
         // Flip signs here if X decreases when driving forward or Y decreases when strafing left.
         pinpoint.setEncoderDirections(
-                GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.FORWARD
+                Constants.Pinpoint.X_POD_INVERT_ENCODER ? GoBildaPinpointDriver.EncoderDirection.REVERSED : GoBildaPinpointDriver.EncoderDirection.FORWARD,
+                Constants.Pinpoint.Y_POD_INVERT_ENCODER ? GoBildaPinpointDriver.EncoderDirection.REVERSED : GoBildaPinpointDriver.EncoderDirection.FORWARD
         );
 
         // Reset pose and IMU bias at startup. Robot must be stationary.
