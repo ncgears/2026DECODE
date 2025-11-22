@@ -12,6 +12,7 @@ public final class Constants {
         public static final double TRACK_WIDTH_IN = 14.0;
         public static final double WHEEL_DIAMETER_IN = 3.0;
         public static final double GEAR_RATIO = 15;
+        public static final double IN_PER_TICK = 0.001972;
         public static final double MAX_VEL = 30;
         public static final double MAX_ACCEL = 30;
         public static final double MAX_ANG_VEL = Math.PI;

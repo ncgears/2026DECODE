@@ -62,7 +62,7 @@ public final class MecanumDrive {
                 Constants.IMUCfg.USB;
 
         // drive model parameters
-        public double inPerTick = 1;
+        public double inPerTick = Constants.RoadRunner.IN_PER_TICK;
         public double lateralInPerTick = inPerTick;
         public double trackWidthTicks = 0;
 
