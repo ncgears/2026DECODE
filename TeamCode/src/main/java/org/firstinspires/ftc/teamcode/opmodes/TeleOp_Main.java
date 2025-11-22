@@ -32,7 +32,7 @@ import java.io.FileReader;
  *   RT (hold)        = shot sequence (ShooterSubsystem.handleRightTrigger)
  *   LT (tap)         = advance indexer 1 slot (manual step)
  *   D.LEFT (hold)    = reverse indexer for unjam; on release, re-acquire a slot
- *   Y (tap)          = clear queue and rescan all 3 slots, then motif-rotate
+ *   B (tap)          = clear queue and rescan all 3 slots, then motif-rotate
  *
  * Other:
  *   - Shooter idles on start().
