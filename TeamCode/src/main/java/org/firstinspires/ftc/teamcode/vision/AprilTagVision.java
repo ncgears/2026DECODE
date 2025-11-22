@@ -21,6 +21,12 @@ public class AprilTagVision {
                 .build();
         atag = new AprilTagProcessor.Builder()
                 .setTagLibrary(alib)
+                .setLensIntrinsics(
+                        Constants.Vision.ODO_FX,
+                        Constants.Vision.ODO_FY,
+                        Constants.Vision.ODO_CX,
+                        Constants.Vision.ODO_CY
+                )
                 .build();
 
         WebcamName webcam = hw.get(WebcamName.class, Constants.Vision.MOTIF_CAM_NAME);
