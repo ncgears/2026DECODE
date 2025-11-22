@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -41,6 +42,7 @@ import java.util.List;
  *      - OdoCam FPS and tag count so you know vision is alive
  */
 @TeleOp(name = "Test_Vision_Correction", group = "Diagnostics")
+@Disabled
 public class Test_Vision_Correction extends OpMode {
 
     // Subsystems
