@@ -69,6 +69,7 @@ public class TeleOp_Main extends OpMode {
     // Indexer / queue state
     private boolean reindexMode   = false;
     private boolean queueWasFull  = false;
+    private long intakeReverseUntilMs = 0;
     private boolean unjamActive   = false;
 
     // Match configuration injected from autonomous (optional)
@@ -100,7 +101,8 @@ public class TeleOp_Main extends OpMode {
         slewR = new SlewRateLimiter(Constants.Drive.SLEW_ROTATION);
 
         // Begin homing the indexer; it will stop itself on the first slot edge.
-        indexer.startStep();
+//        indexer.startStep();
+        //TODO: This isnt working, stopping too early
     }
 
     /** Load Pinpoint calibration offsets from JSON if present. */
@@ -238,13 +240,13 @@ public class TeleOp_Main extends OpMode {
 
         // ===== Operator mechanisms (g2) =====
 
-        // Intake: X / LB+X
-        boolean intakeFwd = g2.x && !g2.left_bumper;
-        boolean outtake   = g2.x &&  g2.left_bumper;
-        if (outtake) {
+        // Base intake intent: X / LB+X
+        boolean intakeFwdCmd = g2.x && !g2.left_bumper;
+        boolean outtakeCmd   = g2.x &&  g2.left_bumper;
+        if (outtakeCmd) {
             intake.outtake();
-        } else if (intakeFwd) {
-            intake.intake();
+//        } else if (intakeFwdCmd) {
+//            intake.intake();
         } else {
             intake.stop();
         }
@@ -260,11 +262,9 @@ public class TeleOp_Main extends OpMode {
 
         if (dpadLeftPressed) {
             unjamActive = true;
-            // reverse indexer for unjam; implementation is inside subsystem
             indexer.startUnjamReverse();
         }
         if (dpadLeftReleased) {
-            // stop reverse and re-acquire a slot by stepping forward once if idle
             indexer.stopUnjam();
             unjamActive = false;
             if (!indexer.isStepping()) {
@@ -316,7 +316,6 @@ public class TeleOp_Main extends OpMode {
         boolean yEdge = yNow && !lastG2Y;
         lastG2Y       = yNow;
         if (yEdge) {
-            // Hard stop shooter and reset the fire state machine
             shooter.stop();
             shooter.resetFireControl();
         }
@@ -331,9 +330,38 @@ public class TeleOp_Main extends OpMode {
         shooter.handleRightTrigger(shootTrigger, indexer);
         shooter.loop();
 
-        // Queue-full motif rotation (outside explicit rescan)
+        // ==== Queue / intake gating and motif rotation ====
+
+        int nowMs = (int) System.currentTimeMillis();
         boolean queueNowFull = isQueueFull();
-        if (!queueWasFull && queueNowFull && !indexer.isStepping()) {
+
+        // Edge: queue just became full in normal mode -> schedule intake backdrive
+        if (!queueWasFull && queueNowFull && !reindexMode && !unjamActive) {
+            intakeReverseUntilMs = nowMs + Constants.Intake.FULL_QUEUE_SPITBACK_MS;
+        }
+
+        boolean indexerStepping   = indexer.isStepping();
+        boolean autoReverseActive = nowMs < intakeReverseUntilMs;
+
+        // Override intake based on indexer / queue state
+        if (autoReverseActive) {
+            // Spit-back window: always run intake in reverse to reject any 4th artifact
+            intake.outtake();
+        } else if (outtakeCmd) {
+            // Manual outtake still works even when queue is full
+            intake.outtake();
+        } else if (indexerStepping || isQueueFull()) {
+            // <<< THIS is the "lock out intake when full" rule >>>
+            // Don't pull new artifacts while the indexer is moving or already full
+            intake.stop();
+        } else if (intakeFwdCmd) {
+            intake.intake();
+        }
+
+    // Else: keep whatever the base X/idle logic chose
+
+        // Queue-full motif rotation (outside explicit rescan)
+        if (!queueWasFull && queueNowFull && !indexerStepping) {
             applyMotifRotationIfAvailable();
         }
         queueWasFull = queueNowFull;

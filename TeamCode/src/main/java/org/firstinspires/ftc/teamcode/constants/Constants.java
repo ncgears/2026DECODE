@@ -68,10 +68,10 @@ public final class Constants {
     /** Intake roller configuration. */
     public static final class Intake {
         public static final String MOTOR = "intake";  // RC config name
-        public static final double POWER_IN  = 0.80;  // forward intake power
+        public static final double POWER_IN  = 0.85;  // forward intake power
         public static final double POWER_OUT = 0.75;  // reverse outtake power
         public static final int    PAUSE_DURING_INDEX_MS = 200; // pause intake while indexer steps
-        public static final int FULL_QUEUE_SPITBACK_MS = 300; // run the intake in reverse when queue is full for this many ms
+        public static final int FULL_QUEUE_SPITBACK_MS = 500; // run the intake in reverse when queue is full for this many ms
     }
 
     /** Indexer carousel configuration (CR servo + slot/colour sensing). */
@@ -105,7 +105,7 @@ public final class Constants {
         public static final float GREEN_HUE_MIN  = 130f;
         public static final float GREEN_HUE_MAX  = 170f;
 
-        public static final double POWER_FWD = 0.90;           // CR servo forward power
+        public static final double POWER_FWD = 1.00;           // CR servo forward power
         public static final boolean DIR_FORWARD_IS_POSITIVE = false; // flip if wiring requires
         public static final int DEBOUNCE_MS = 25;               // debounce for slot switch
         public static final int STEP_TIMEOUT_MS = 1000;          // stop & flag jam if exceeded
@@ -126,7 +126,7 @@ public final class Constants {
         public static final double TARGET_POWER = 1.0; // open-loop target for shots
 
         public static final double RAMP_RETRACTED = 0.7; // servo position for safe idle
-        public static final double RAMP_ENGAGED   = 0.47; // servo position to feed S0 into shooter
+        public static final double RAMP_ENGAGED   = 0.49; // servo position to feed S0 into shooter
 
         public static final int HOLD_AFTER_RELEASE_MS = 1500; // keep flywheels up to speed after RT release
         public static final int INTER_SHOT_DWELL_MS   = 300;  // dwell between auto-advances (ms)
