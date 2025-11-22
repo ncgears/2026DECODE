@@ -78,7 +78,7 @@ public final class Constants {
         // Feature toggle:
         // false => use discrete DIO purple/green channels
         // true  => use REV Color Sensor v3 (I2C) named "color" in the RC config
-        public static final boolean USE_REV_COLOR_SENSOR = false;
+        public static final boolean USE_REV_COLOR_SENSOR = true;
 
 
         // RC config names for indexer hardware
