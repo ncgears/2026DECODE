@@ -120,15 +120,15 @@ public final class Constants {
 
         // Basic thresholds for classifying REV color sensor readings.
         // These are intentionally simple; you'll tune them in your calibration OpMode.
-        public static final int   COLOR_ALPHA_MIN = 100;   // below this, treat as "no piece"
+        public static final int   COLOR_ALPHA_MIN = 115;   // below this, treat as "no piece"
         public static final float COLOR_MIN_SAT   = 0.30f; // very low saturation => probably not reliable
 
         // Hue ranges (degrees 0..360) for game-piece colors.
         // Approximate, to be refined in your calibration OpMode.
-        public static final float PURPLE_HUE_MIN = 205f;
-        public static final float PURPLE_HUE_MAX = 255f;
-        public static final float GREEN_HUE_MIN  = 130f;
-        public static final float GREEN_HUE_MAX  = 170f;
+        public static final float PURPLE_HUE_MIN = 215f;
+        public static final float PURPLE_HUE_MAX = 245f;
+        public static final float GREEN_HUE_MIN  = 145f;
+        public static final float GREEN_HUE_MAX  = 175f;
 
         public static final double POWER_FWD = 1.00;           // CR servo forward power
         public static final boolean DIR_FORWARD_IS_POSITIVE = false; // flip if wiring requires

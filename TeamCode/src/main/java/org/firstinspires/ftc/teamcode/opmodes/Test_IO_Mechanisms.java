@@ -47,7 +47,7 @@ import org.firstinspires.ftc.teamcode.constants.Constants;
  *   - BACK                  => stop intake/indexer/shooter; retract ramp
  */
 @TeleOp(name = "Test_IO_Mechanisms", group = "Diagnostics")
-@Disabled
+//@Disabled
 public class Test_IO_Mechanisms extends OpMode {
 
     // Motors (SDK DcMotor is sufficient for testing)

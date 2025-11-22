@@ -335,6 +335,9 @@ public class TeleOp_Main extends OpMode {
         int nowMs = (int) System.currentTimeMillis();
         boolean queueNowFull = isQueueFull();
 
+        // If we just initialized, we just set the reverse timer to now
+        intakeReverseUntilMs = (intakeReverseUntilMs == 0) ? nowMs + Constants.Intake.FULL_QUEUE_SPITBACK_MS : intakeReverseUntilMs;
+
         // Edge: queue just became full in normal mode -> schedule intake backdrive
         if (!queueWasFull && queueNowFull && !reindexMode && !unjamActive) {
             intakeReverseUntilMs = nowMs + Constants.Intake.FULL_QUEUE_SPITBACK_MS;
