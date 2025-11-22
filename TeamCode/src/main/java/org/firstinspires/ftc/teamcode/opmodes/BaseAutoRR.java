@@ -14,7 +14,11 @@ import org.firstinspires.ftc.teamcode.util.AutoSelector.AutoMode;
 import org.firstinspires.ftc.teamcode.util.TelemetryUtil;
 
 import org.firstinspires.ftc.teamcode.vision.AprilTagVisionManager;
+import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.vision.AprilTagVision;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
+import java.util.List;
 import java.util.EnumMap;
 
 /**
@@ -29,6 +33,10 @@ import java.util.EnumMap;
  * All units: inches and radians.
  */
 public abstract class BaseAutoRR extends LinearOpMode {
+    // --- Motif detection shared by all RR autos ---
+    private AprilTagVision motifVision = null;
+    private String motifCode = "NONE";
+    private boolean motifLocked = false;
 
     protected TelemetryUtil T;
     protected AllianceDetector allianceDetector;
@@ -76,14 +84,28 @@ public abstract class BaseAutoRR extends LinearOpMode {
 
         vision = new AprilTagVisionManager(hardwareMap, T);
 
-        // Pre-start loop: update switch state and display selection.
+        // Reset motif state for this run.
+        motifCode = "NONE";
+        motifLocked = false;
+
+        // Pre-start loop: update switch state, display selection, and scan motif.
         while (!isStarted() && !isStopRequested()) {
             alliance = allianceDetector.determineAlliance();
             autoMode = autoSelector.select(alliance);
 
+            // Keep motifcam running and update motifCode opportunistically.
+            ensureMotifVision();
+            if (motifVision != null && !motifLocked) {
+                String detected = detectMotifOnce(motifVision);
+                if (!"NONE".equals(detected)) {
+                    motifCode = detected;
+                }
+            }
+
             T.banner(1, "RR Auto Init");
             T.t(1, "Alliance", alliance);
             T.t(1, "AutoMode", autoMode);
+            T.t(1, "Motif code", motifCode);
             T.t(2, "FlagA asserted", allianceDetector.isFlagAAsserted());
             T.t(2, "FlagB asserted", allianceDetector.isFlagBAsserted());
             T.t(2, "AutoA asserted", autoSelector.isAutoAAsserted());
@@ -95,6 +117,9 @@ public abstract class BaseAutoRR extends LinearOpMode {
 
         if (isStopRequested()) return;
 
+        // Once start is pressed, give the camera up to MOTIF_SCAN_TIMEOUT_MS more to lock.
+        lockMotifAtStart();
+
         Pose2d startPose = getStartPose(alliance, autoMode);
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
@@ -104,6 +129,80 @@ public abstract class BaseAutoRR extends LinearOpMode {
         if (routine != null) {
             Actions.runBlocking(routine);
         }
+    }
+
+    protected String getMotifCode() {
+        return motifCode;
+    }
+
+    /** Lazily construct the motif camera pipeline (motifcam). Safe to call repeatedly. */
+    private void ensureMotifVision() {
+        if (motifVision != null) return;
+        try {
+            motifVision = new AprilTagVision(hardwareMap);
+        } catch (Exception e) {
+            // Camera failed to init; leave motifVision == null and report once.
+            T.t(1, "Motif error", "motifcam init failed");
+        }
+    }
+
+    /** Classify the current frame from motifcam as GPP / PGP / PPG / NONE. */
+    protected String detectMotifOnce(AprilTagVision mv) {
+        if (mv == null || mv.atag == null) return "NONE";
+
+        List<AprilTagDetection> dets = mv.atag.getDetections();
+        if (dets == null || dets.isEmpty()) return "NONE";
+
+        for (AprilTagDetection d : dets) {
+            if (d == null) continue;
+            int id = d.id;
+            if (id == Constants.Vision.TAG_MOTIF_GPP) return "GPP";
+            if (id == Constants.Vision.TAG_MOTIF_PGP) return "PGP";
+            if (id == Constants.Vision.TAG_MOTIF_PPG) return "PPG";
+        }
+        return "NONE";
+    }
+
+    /**
+     * Block for up to MOTIF_SCAN_TIMEOUT_MS after start to freeze motifCode.
+     * If we never see a motif, we lock "NONE".
+     */
+    private void lockMotifAtStart() {
+        if (motifLocked) {
+            // Already locked from init loop; just make sure camera is off.
+            if (motifVision != null && motifVision.portal != null) {
+                motifVision.portal.stopStreaming();
+            }
+            return;
+        }
+
+        ensureMotifVision();
+        long timeoutMs = Constants.Vision.MOTIF_SCAN_TIMEOUT_MS;
+        long startMs = System.currentTimeMillis();
+
+        while (opModeIsActive()
+                && "NONE".equals(motifCode)
+                && (timeoutMs <= 0 || System.currentTimeMillis() - startMs < timeoutMs)) {
+
+            if (motifVision != null) {
+                String detected = detectMotifOnce(motifVision);
+                if (!"NONE".equals(detected)) {
+                    motifCode = detected;
+                }
+            }
+
+            T.t(1, "Motif code (locking)", motifCode);
+            telemetry.update();
+            idle();
+        }
+
+        motifLocked = true;
+
+        if (motifVision != null && motifVision.portal != null) {
+            motifVision.portal.stopStreaming();
+        }
+
+        T.banner(1, "Motif locked: " + motifCode);
     }
 
     public void playAudio(String text, int delayMs) {

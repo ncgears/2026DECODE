@@ -117,31 +117,15 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
         // Optionally pre-populate the indexer queue here if you want software to
         // know about preloads before the first shot.
 
-        // ---- (b) Determine motif from motifcam ----
-        String motifDetected;
-        AprilTagVision motifVision = null;
-        try {
-            motifVision = new AprilTagVision(hardwareMap);
-            motifDetected = detectMotifOnce(motifVision);
-        } catch (Exception e) {
-            motifDetected = "NONE"; // camera not available -> fallback
-        }
-
-        // Shut off motif camera to save bandwidth once we have a code.
-        if (motifVision != null && motifVision.portal != null) {
-            motifVision.portal.stopStreaming();
-        }
-
-        // Expose as final for inner classes
-        final String motif = motifDetected;
+        // ---- (b) Motif was already detected/locked by BaseAutoRR ----
+        final String motif = getMotifCode();
 
         // ---- (c) Rotate queue for shooting order ----
         indexer.rotateForMotif(motif);
-
         playAudio(String.format("%s", alliance.toString()),500);
         playAudio(String.format("%s", autoMode.toString()),500);
-        playAudio(String.format("%s", motifDetected),500);
-        T.t(1, "Motif code", motifDetected);
+        playAudio(String.format("%s", motif),500);
+        T.t(1, "Motif code", motif);
         telemetry.update();
 
         // ---- (d) Resolve shooting & stack poses for this alliance/mode ----
@@ -227,26 +211,6 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
             default:
                 return new Pose2d[0];
         }
-    }
-
-    /**
-     * One-shot motif capture from motifcam.
-     * (Same logic as Test_Subsystems.detectMotifOnce()).
-     */
-    private String detectMotifOnce(AprilTagVision motifVision) {
-        if (motifVision == null || motifVision.atag == null) return "NONE";
-
-        List<AprilTagDetection> dets = motifVision.atag.getDetections();
-        if (dets == null || dets.isEmpty()) return "NONE";
-
-        for (AprilTagDetection d : dets) {
-            if (d == null) continue;
-            int id = d.id;
-            if (id == Constants.Vision.TAG_MOTIF_GPP) return "GPP";
-            if (id == Constants.Vision.TAG_MOTIF_PGP) return "PGP";
-            if (id == Constants.Vision.TAG_MOTIF_PPG) return "PPG";
-        }
-        return "NONE";
     }
 
     /**
