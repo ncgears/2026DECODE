@@ -62,7 +62,6 @@ public class AprilTagVisionManager {
         if (portalOdo != null) return;
         procOdo = new AprilTagProcessor.Builder()
             .setTagLibrary(lib)
-            .setTagLibrary(lib)
             .setLensIntrinsics(// Lens intrinsics from Constants.Vision (odo cam calibration)
                     Constants.Vision.ODO_FX,
                     Constants.Vision.ODO_FY,

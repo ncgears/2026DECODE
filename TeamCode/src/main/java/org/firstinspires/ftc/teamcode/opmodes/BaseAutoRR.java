@@ -106,12 +106,15 @@ public abstract class BaseAutoRR extends LinearOpMode {
             T.t(1, "Alliance", alliance);
             T.t(1, "AutoMode", autoMode);
             T.t(1, "Motif code", motifCode);
-            T.t(2, "FlagA asserted", allianceDetector.isFlagAAsserted());
-            T.t(2, "FlagB asserted", allianceDetector.isFlagBAsserted());
-            T.t(2, "AutoA asserted", autoSelector.isAutoAAsserted());
-            T.t(2, "AutoB asserted", autoSelector.isAutoBAsserted());
-            telemetry.update();
+//            T.t(2, "FlagA asserted", allianceDetector.isFlagAAsserted());
+//            T.t(2, "FlagB asserted", allianceDetector.isFlagBAsserted());
+//            T.t(2, "AutoA asserted", autoSelector.isAutoAAsserted());
+//            T.t(2, "AutoB asserted", autoSelector.isAutoBAsserted());
 
+            // allow subclasses to do their own init-loop behavior
+            initLoopExtended();
+
+            telemetry.update();
             idle();
         }
 
@@ -129,6 +132,16 @@ public abstract class BaseAutoRR extends LinearOpMode {
         if (routine != null) {
             Actions.runBlocking(routine);
         }
+    }
+
+    /**
+     * Optional hook for subclasses to run extra logic during the INIT-loop
+     * (before start is pressed). This runs once per init-loop iteration.
+     *
+     * Typical use: indexer preloading, mechanism homing, etc.
+     */
+    protected void initLoopExtended() {
+        // default: no-op
     }
 
     protected String getMotifCode() {

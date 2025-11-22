@@ -391,7 +391,7 @@ public class TeleOp_Main extends OpMode {
         telemetry.addData("DriveMode", useField ? "FIELD" : "ROBOT");
         telemetry.addData("HeadingProvider", (heading == imuHeading) ? "IMU" : "PINPOINT");
         telemetry.addData("HeadingDeg", headingDeg);
-        telemetry.addData("Queue", "%s %s %s", indexer.getS0(), indexer.getS1L(), indexer.getS2());
+        telemetry.addData("Queue", "S0:%s S1:%s S2:%s", indexer.getS0(), indexer.getS1L(), indexer.getS2());
 
         telemetry.update();
     }

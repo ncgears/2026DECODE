@@ -41,6 +41,14 @@ import java.util.List;
 @Config
 @Autonomous(name = "Auto_DECODE_NoDrive", group = "RR")
 public final class Auto_DECODE_NoDrive extends BaseAutoRR {
+    private IntakeSubsystem intake;
+    private IndexerSubsystem indexer;
+    private ShooterSubsystem shooter;
+    private boolean subsystemsInitialized = false;
+
+    // For preload telemetry/debug
+    private IndexerSubsystem.Item lastDetectedItem   = IndexerSubsystem.Item.NONE;
+    private boolean lastStepDetectedColor = false;
 
     // ---- Tunable field coordinates (inches, radians) ----
     // Shooting pose per AutoMode. Replace with real DECODE coordinates.
@@ -103,11 +111,13 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
                                   Alliance alliance,
                                   AutoMode autoMode,
                                   Pose2d startPose) {
+        // Make sure we have subsystems, whether or not initLoop ran
+        ensureSubsystems();
 
         // ---- Subsystems used during this auto ----
-        final IntakeSubsystem  intake  = new IntakeSubsystem(hardwareMap);
-        final IndexerSubsystem indexer = new IndexerSubsystem(hardwareMap);
-        final ShooterSubsystem shooter = new ShooterSubsystem(hardwareMap);
+        final IntakeSubsystem  intake  = this.intake;
+        final IndexerSubsystem indexer = this.indexer;
+        final ShooterSubsystem shooter = this.shooter;
 
         boolean preferRed = (alliance == Alliance.RED);
 
@@ -122,6 +132,7 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
 
         // ---- (c) Rotate queue for shooting order ----
         indexer.rotateForMotif(motif);
+
         playAudio(String.format("%s", alliance.toString()),500);
         playAudio(String.format("%s", autoMode.toString()),500);
         playAudio(String.format("%s", motif),500);
@@ -147,8 +158,20 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
         */
 
         // e) Shoot 3 preloads at first shooting pose.
-        sequence.add(makeShootBurstAction(
-                shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "preload"));
+//        sequence.add(makeShootBurstAction(
+//                shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "preload"));
+
+        // After completing the preload burst and post-burst hold,
+        // explicitly idle the shooter and drop the ramp as a safety reset.
+        sequence.add(new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                shooter.idle();
+                shooter.setRampEngaged(false);
+                packet.put("Shooter", "Idle after preload burst");
+                return false; // one-shot action
+            }
+        });
 
         // f/g/e) For each stack: go collect, come back, rotate for motif, shoot.
         int stackCount = Math.min(MAX_STACKS, stacks.length);
@@ -211,6 +234,84 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
             default:
                 return new Pose2d[0];
         }
+    }
+
+    @Override
+    protected void initLoopExtended() {
+        // Make sure subsystems exist for pre-start
+        ensureSubsystems();
+
+        // Let the indexer run its internal state machine.
+        indexer.loop();
+
+        // Optional: you can choose to keep intake stopped during preload and
+        // just let humans drop into the hopper by hand.
+        intake.stop();
+
+        // Telemetry so drive team can see queue status during INIT
+        telemetry.addData("Preload S0",  indexer.getS0());
+        telemetry.addData("Preload S1L", indexer.getS1L());
+        telemetry.addData("Preload S2",  indexer.getS2());
+
+        runIndexerPreload();
+    }
+
+    private void ensureSubsystems() {
+        if (intake == null) {
+            intake = new IntakeSubsystem(hardwareMap);
+        }
+        if (indexer == null) {
+            indexer = new IndexerSubsystem(hardwareMap);
+        }
+        if (shooter == null) {
+            shooter = new ShooterSubsystem(hardwareMap);
+        }
+    }
+
+    private boolean isQueueFull() {
+        return indexer.getS0()  != IndexerSubsystem.Item.NONE &&
+                indexer.getS1L() != IndexerSubsystem.Item.NONE &&
+                indexer.getS2()  != IndexerSubsystem.Item.NONE;
+    }
+
+    /**
+     * INIT-only auto-preload:
+     * - Keep indexer SM updated.
+     * - If not stepping and queue not full: detect color at S1L, and advance one step when we see a ball.
+     * - If queue is full: still sample color for S1L but do not move.
+     */
+    private void runIndexerPreload() {
+        // Keep state machine updated
+        indexer.loop();
+        boolean isStepping = indexer.isStepping();
+
+        boolean queueFull = isQueueFull();
+        lastStepDetectedColor = false;
+
+        if (!isStepping) {
+            if (!queueFull) {
+                boolean colorPresent = indexer.detectAtS1L();
+                if (colorPresent) {
+                    lastStepDetectedColor = true;
+                    lastDetectedItem = indexer.getS1L();
+                    indexer.startStep(); // advance away from the ball
+                }
+            } else {
+                // Queue full: keep S1L's color up-to-date, but don't move
+                indexer.detectAtS1L();
+            }
+        }
+
+        // Telemetry similar to Test_Intake_Indexer so you can debug easily
+        telemetry.addData("queueFull", queueFull);
+        telemetry.addData("lastDetectedItem", "%s (updatedThisLoop=%b)",
+                lastDetectedItem, lastStepDetectedColor);
+        telemetry.addData("colorMode",
+                indexer.isRevColorSensorHealthy()
+                        ? "REV"
+                        : indexer.isDioColorAvailable()
+                        ? "DIO (fallback)"
+                        : "NO COLOR SENSOR");
     }
 
     /**

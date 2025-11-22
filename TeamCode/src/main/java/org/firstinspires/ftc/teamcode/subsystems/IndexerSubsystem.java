@@ -113,7 +113,7 @@ public class IndexerSubsystem {
         startStep();
     }
 
-    /** Begin stepping forward one slot (S0->S2->S1L->S0). */
+    /** Begin stepping forward one slot (S1L->S0->S2->S1L). */
     public void startStep() {
         if (stepping) return;
         stepping = true;
@@ -142,11 +142,11 @@ public class IndexerSubsystem {
     public boolean getAndClearTimedOut() { boolean v = lastStepTimedOut; lastStepTimedOut = false; return v; }
 
     public Item getS0()  { return q[s0Index]; }
-    public Item getS1L() { return q[mod(s0Index + 1, 3)]; }
-    public Item getS2()  { return q[mod(s0Index + 2, 3)]; }
-    public void setS1L(Item it) { q[mod(s0Index + 1, 3)] = it; }
+    public Item getS1L() { return q[mod(s0Index + 2, 3)]; }
+    public Item getS2()  { return q[mod(s0Index + 1, 3)]; }
+    public void setS1L(Item it) { q[mod(s0Index + 2, 3)] = it; }
     public void setS0(Item it)  { q[s0Index] = it; }
-    public void setS2(Item it)  { q[mod(s0Index + 2, 3)] = it; }
+    public void setS2(Item it)  { q[mod(s0Index + 1, 3)] = it; }
 
     public boolean isQueueFull() { return getS0()!=Item.NONE && getS1L()!=Item.NONE && getS2()!=Item.NONE; }
 
@@ -247,20 +247,113 @@ public class IndexerSubsystem {
         return readColorAtS1LRaw();
     }
 
-    /** Rotate buffer to match motif order, with special GGP rule for PGP/PPG => make next shot PURPLE. */
+    // New helper: compute how many forward steps we need; do NOT touch s0Index.
+    public int computeStepsForMotif(String motifCode) {
+        if (!isQueueFull()) return 0;
+
+        int idx = s0Index;
+        int bestSteps = 0;
+
+        // Try direct motif match
+        for (int steps = 0; steps < 3; steps++) {
+            String seq =
+                    (q[idx]               == Item.GREEN ? "G" : "P") +
+                            (q[mod(idx + 2, 3)]   == Item.GREEN ? "G" : "P") +
+                            (q[mod(idx + 1, 3)]   == Item.GREEN ? "G" : "P");
+            if (seq.equals(motifCode)) {
+                bestSteps = steps;
+                break;
+            }
+            idx = mod(idx + 2, 3); // simulate a step
+        }
+
+        // TODO: add your GGP special-case logic here using the simulated idx
+
+        return bestSteps;
+    }
+
+    /**
+     * Perform one physical forward step of the carousel and block until
+     * the step completes (limit switch edge or timeout).
+     *
+     * Uses the existing startStep()/loop() machinery so s0Index and
+     * timeout behavior remain consistent.
+     */
+    private void doPhysicalStepBlocking() {
+        // If a step is already in progress, let it finish first
+        if (!stepping) {
+            startStep();
+        }
+
+        // Run the step state machine until it finishes.
+        // loop() will:
+        //  - stop the servo on debounced HIGH edge
+        //  - update s0Index
+        //  - or stop on timeout and set lastStepTimedOut
+        while (stepping) {
+            loop();
+        }
+
+        // We don't care about the timeout latched state for motif rotation,
+        // so clear it to avoid surprising callers later.
+        lastStepTimedOut = false;
+    }
+
+    /**
+     * Physically rotate the carousel to match the requested motif, using only
+     * forward steps. This ALWAYS moves the servo; there is no "logical-only"
+     * rotation here.
+     *
+     * Behavior:
+     *   1) If queue is not full, do nothing.
+     *   2) Try up to 3 forward steps to match G/P pattern exactly.
+     *   3) If we have GGP loaded and motif is PGP/PPG, ensure the *next*
+     *      shot (S0) is PURPLE by stepping until PURPLE is at S0.
+     */
     public void rotateForMotif(String motifCode) {
         if (!isQueueFull()) return;
-        // Try to match motif directly by rotating up to 3 times
-        for (int tries=0; tries<3; tries++) {
-            String seq = (getS0()==Item.GREEN?"G":"P") + (getS1L()==Item.GREEN?"G":"P") + (getS2()==Item.GREEN?"G":"P");
-            if (seq.equals(motifCode)) return;
-            s0Index = mod(s0Index + 2, 3);
+
+        // Only handle the three known motif codes; ignore anything else.
+        if (!"GPP".equals(motifCode) &&
+                !"PGP".equals(motifCode) &&
+                !"PPG".equals(motifCode)) {
+            return;
         }
-        // Special case: GGP set + motif PGP/PPG -> next should be Purple
-        int greens = (getS0()==Item.GREEN?1:0) + (getS1L()==Item.GREEN?1:0) + (getS2()==Item.GREEN?1:0);
+
+        // 1) Direct motif match by up to three forward steps
+        for (int tries = 0; tries < 3; tries++) {
+            String seq =
+                    (getS0()  == Item.GREEN ? "G" : "P") +
+                            (getS1L() == Item.GREEN ? "G" : "P") +
+                            (getS2()  == Item.GREEN ? "G" : "P");
+
+            if (seq.equals(motifCode)) {
+                // Already aligned; no more motion needed.
+                return;
+            }
+
+            // Physically advance one slot forward (updates s0Index via loop()).
+            doPhysicalStepBlocking();
+        }
+
+        // 2) Special case: GGP loaded, motif PGP/PPG => make S0 purple
+        int greens =
+                (getS0()  == Item.GREEN ? 1 : 0) +
+                        (getS1L() == Item.GREEN ? 1 : 0) +
+                        (getS2()  == Item.GREEN ? 1 : 0);
         int purples = 3 - greens;
-        if (greens==2 && purples==1 && ("PGP".equals(motifCode) || "PPG".equals(motifCode))) {
-            for (int i=0;i<3;i++) { if (getS0()==Item.PURPLE) break; s0Index = mod(s0Index + 2, 3); }
+
+        if (greens == 2 &&
+                purples == 1 &&
+                ("PGP".equals(motifCode) || "PPG".equals(motifCode))) {
+
+            // Step forward until PURPLE lands at S0, or we've tried all 3 slots.
+            for (int i = 0; i < 3; i++) {
+                if (getS0() == Item.PURPLE) {
+                    break;
+                }
+                doPhysicalStepBlocking();
+            }
         }
     }
 
