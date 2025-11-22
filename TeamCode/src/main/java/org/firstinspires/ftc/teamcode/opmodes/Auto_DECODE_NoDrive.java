@@ -158,8 +158,8 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
         */
 
         // e) Shoot 3 preloads at first shooting pose.
-//        sequence.add(makeShootBurstAction(
-//                shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "preload"));
+        sequence.add(makeShootBurstAction(
+                shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "preload"));
 
         // After completing the preload burst and post-burst hold,
         // explicitly idle the shooter and drop the ramp as a safety reset.
