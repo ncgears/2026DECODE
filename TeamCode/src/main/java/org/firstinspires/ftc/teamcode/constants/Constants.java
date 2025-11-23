@@ -291,7 +291,8 @@ public final class Constants {
 
     /** Global Constants. */
     public static final class Global {
-        public static final boolean ENABLE_DASHBOARD = true;
+        public static final boolean ENABLE_DASHBOARD = true; //enable "Dashboard Enable/Disable" opmode
+        public static final boolean ENABLE_TUNING = true; //enable all the tuning opmodes
     }
 
     private Constants() {}
