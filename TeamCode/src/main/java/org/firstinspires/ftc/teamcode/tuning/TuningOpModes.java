@@ -47,7 +47,7 @@ public final class TuningOpModes {
     public static final Class<?> DRIVE_CLASS = MecanumDrive.class;
 
     public static final String GROUP = "quickstart";
-    public static final boolean DISABLED = Constants.Global.ENABLE_TUNING;
+    public static final boolean DISABLED = !Constants.Global.ENABLE_TUNING_OPMODES;
 
     private TuningOpModes() {}
 
