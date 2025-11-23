@@ -13,13 +13,14 @@ public final class Constants {
         public static final double WHEEL_DIAMETER_IN = 3.0;
         public static final double GEAR_RATIO = 15;
         public static final double IN_PER_TICK = 0.001972;
+        public static final double LAT_IN_PER_TICK = 0.0016807;
         public static final double MAX_VEL = 30;
         public static final double MAX_ACCEL = 30;
         public static final double MAX_ANG_VEL = Math.PI;
         public static final double MAX_ANG_ACCEL = Math.PI;
-        public static final double kS = 0.1;
-        public static final double kV = 0.1; //TODO: tune this!
-        public static final double kA = 0.0;
+        public static final double kS = 1.02879;
+        public static final double kV = 0.000388;
+        public static final double kA = 0.00006;
 
         //invert encoders if needed
         public static final boolean INVERT_FL_ENC = false;
