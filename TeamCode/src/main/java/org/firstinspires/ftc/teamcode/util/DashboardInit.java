@@ -11,7 +11,7 @@ public class DashboardInit {
     @OnCreate
     public static void init(Context context) {
         // Flip your constant to show/hide the Dashboard Enable/Disable OpMode
-        if (!Constants.Global.ENABLE_DASHBOARD) {
+        if (!Constants.Global.ENABLE_DASHBOARD_OPMODE) {
             FtcDashboard.suppressOpMode();
         }
     }
