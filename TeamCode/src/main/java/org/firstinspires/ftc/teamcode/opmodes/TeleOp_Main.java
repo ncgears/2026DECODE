@@ -353,7 +353,7 @@ public class TeleOp_Main extends OpMode {
         } else if (outtakeCmd) {
             // Manual outtake still works even when queue is full
             intake.outtake();
-        } else if (indexerStepping || isQueueFull()) {
+        } else if (indexerStepping) { //|| isQueueFull()) { //disable lockout
             // <<< THIS is the "lock out intake when full" rule >>>
             // Don't pull new artifacts while the indexer is moving or already full
             intake.stop();
