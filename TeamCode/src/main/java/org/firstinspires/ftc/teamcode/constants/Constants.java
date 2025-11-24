@@ -12,14 +12,15 @@ public final class Constants {
         public static final double TRACK_WIDTH_IN = 14.0;
         public static final double WHEEL_DIAMETER_IN = 3.0;
         public static final double GEAR_RATIO = 15;
-        public static final double IN_PER_TICK = 0.001972;
-        public static final double LAT_IN_PER_TICK = 0.0016807;
+        public static final double IN_PER_TICK = 0.0019286;
+        public static final double LAT_IN_PER_TICK = 0.0015982;
+        public static final double TRACK_WIDTH_TICK = 6988.635359;
         public static final double MAX_VEL = 30;
         public static final double MAX_ACCEL = 30;
         public static final double MAX_ANG_VEL = Math.PI;
         public static final double MAX_ANG_ACCEL = Math.PI;
-        public static final double kS = 1.02879;
-        public static final double kV = 0.000388;
+        public static final double kS = 0.997033185;
+        public static final double kV = 0.000379892;
         public static final double kA = 0.00006;
 
         //invert encoders if needed
@@ -190,10 +191,10 @@ public final class Constants {
         public static final int STREAM_HEIGHT = 720;
 
         // Max time to wait in auto for motif detection before falling back to NONE (ms)
-        public static final long MOTIF_SCAN_TIMEOUT_MS = 2000;
+        public static final long MOTIF_SCAN_TIMEOUT_MS = 1200;
 
         // Enable / disable AprilTag-based odometry fusion during autonomous.
-        public static final boolean ODO_FUSE_DURING_AUTO = true;
+        public static final boolean ODO_FUSE_DURING_AUTO = false;
         public static final boolean ODO_FUSE_DURING_TELEOP = false;
 
         // Extrinsics for odocam (measure during bring-up; meters & degrees)

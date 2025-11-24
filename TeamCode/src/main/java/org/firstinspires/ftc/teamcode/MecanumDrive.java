@@ -64,7 +64,7 @@ public final class MecanumDrive {
         // drive model parameters
         public double inPerTick = Constants.RoadRunner.IN_PER_TICK;
         public double lateralInPerTick = Constants.RoadRunner.LAT_IN_PER_TICK;
-        public double trackWidthTicks = 6807.02250;
+        public double trackWidthTicks = Constants.RoadRunner.TRACK_WIDTH_TICK;
 
         // feedforward parameters (in tick units)
         public double kS = Constants.RoadRunner.kS;

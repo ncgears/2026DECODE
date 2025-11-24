@@ -42,55 +42,6 @@ import java.util.List;
 @Autonomous(name = "Auto_DECODE_Main", group = "RR")
 public final class Auto_DECODE_Main extends BaseAutoRR {
 
-    // ---- Tunable field coordinates (inches, radians) ----
-    // Shooting pose per AutoMode. Replace with real DECODE coordinates.
-    public static double RED1_SHOOT_X   =  18.0;
-    public static double RED1_SHOOT_Y   = -60.0;
-    public static double RED1_SHOOT_HE  =  0.0;
-
-    public static double RED2_SHOOT_X   = -18.0;
-    public static double RED2_SHOOT_Y   = -60.0;
-    public static double RED2_SHOOT_HE  =  0.0;
-
-    public static double BLUE1_SHOOT_X  =  18.0;
-    public static double BLUE1_SHOOT_Y  =  60.0;
-    public static double BLUE1_SHOOT_HE = Math.PI;   // facing "back" toward blue goal
-
-    public static double BLUE2_SHOOT_X  = -18.0;
-    public static double BLUE2_SHOOT_Y  =  60.0;
-    public static double BLUE2_SHOOT_HE = Math.PI;
-
-    // ---- Spike stack geometry (DECODE) ----
-    // Assumption for these defaults:
-    //  - Goal walls are at |Y| ~= 72".
-    //  - Spike centers are 24" in from the goal wall → |Y| = 48".
-    //  - Along the goal wall, the centers are 60", 84", 108" from the field end.
-    // You will tune these per-auto in Dashboard, but the pattern is correct.
-
-    // RED1: “goal wall” at negative Y, alliance on the red side.
-    public static double RED1_SPIKE_Y = -48.0;          // 24" in from red goal wall
-    public static double RED1_SPIKE1_X =  60.0;         // PPG spike (closest to goal)
-    public static double RED1_SPIKE2_X =  84.0;         // PGP
-    public static double RED1_SPIKE3_X = 108.0;         // GPP
-
-    // RED2: mirrored on the other half of the red wall.
-    public static double RED2_SPIKE_Y = -48.0;
-    public static double RED2_SPIKE1_X = -60.0;
-    public static double RED2_SPIKE2_X = -84.0;
-    public static double RED2_SPIKE3_X = -108.0;
-
-    // BLUE1: goal wall at positive Y, mirrored geometry.
-    public static double BLUE1_SPIKE_Y =  48.0;         // 24" in from blue goal wall
-    public static double BLUE1_SPIKE1_X =  60.0;        // PPG
-    public static double BLUE1_SPIKE2_X =  84.0;        // PGP
-    public static double BLUE1_SPIKE3_X = 108.0;        // GPP
-
-    // BLUE2: mirrored on the other half of the blue wall.
-    public static double BLUE2_SPIKE_Y =  48.0;
-    public static double BLUE2_SPIKE1_X = -60.0;
-    public static double BLUE2_SPIKE2_X = -84.0;
-    public static double BLUE2_SPIKE3_X = -108.0;
-
     // How far “in front of” a spike we stage before driving straight into it.
     public static double SPIKE_APPROACH_OFFSET = 8.0;   // inches along +Y/-Y direction
 
@@ -136,13 +87,13 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
         List<Action> sequence = new ArrayList<>();
 
         // d) Move from starting pose to shooting pose.
-        Action toFirstShoot = drive.actionBuilder(startPose)
-                .lineToX(shootPose.position.x)
-                .lineToY(shootPose.position.y)
-                // if you later add turn/heading support:
-                // .turn(shootPose.heading - startPose.heading)
-                .build();
-        sequence.add(toFirstShoot);
+//        Action toFirstShoot = drive.actionBuilder(startPose)
+//                .lineToX(shootPose.position.x)
+//                .strafeTo(shootPose.position.y)
+//                // if you later add turn/heading support:
+//                // .turn(shootPose.heading - startPose.heading)
+//                .build();
+//        sequence.add(toFirstShoot);
 
         // e) Shoot 3 preloads at first shooting pose.
         sequence.add(makeShootBurstAction(
@@ -235,62 +186,6 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
         }
 
         return new SequentialAction(sequence.toArray(new Action[0]));
-    }
-
-    /**
-     * Map alliance + auto mode to a shooting pose.
-     * Replace placeholders with real DECODE coordinates.
-     */
-    private Pose2d getShootPoseFor(Alliance alliance, AutoMode mode) {
-        switch (mode) {
-            case RED1:
-                return new Pose2d(new Vector2d(RED1_SHOOT_X, RED1_SHOOT_Y), RED1_SHOOT_HE);
-            case RED2:
-                return new Pose2d(new Vector2d(RED2_SHOOT_X, RED2_SHOOT_Y), RED2_SHOOT_HE);
-            case BLUE1:
-                return new Pose2d(new Vector2d(BLUE1_SHOOT_X, BLUE1_SHOOT_Y), BLUE1_SHOOT_HE);
-            case BLUE2:
-                return new Pose2d(new Vector2d(BLUE2_SHOOT_X, BLUE2_SHOOT_Y), BLUE2_SHOOT_HE);
-            case NONE:
-            default:
-                // Fallback: shouldn't ever be used in a real match.
-                return new Pose2d(new Vector2d(0.0, 0.0), 0.0);
-        }
-    }
-
-    /**
-     * Stack poses per alliance/mode. Tune these for the real field.
-     */
-    private Pose2d[] getStackPosesFor(Alliance alliance, AutoMode mode) {
-        switch (mode) {
-            case RED1:
-                return new Pose2d[]{
-                        new Pose2d(new Vector2d(RED1_SPIKE1_X, RED1_SPIKE_Y), 0.0),
-                        new Pose2d(new Vector2d(RED1_SPIKE2_X, RED1_SPIKE_Y), 0.0),
-                        new Pose2d(new Vector2d(RED1_SPIKE3_X, RED1_SPIKE_Y), 0.0),
-                };
-            case RED2:
-                return new Pose2d[]{
-                        new Pose2d(new Vector2d(RED2_SPIKE1_X, RED2_SPIKE_Y), 0.0),
-                        new Pose2d(new Vector2d(RED2_SPIKE2_X, RED2_SPIKE_Y), 0.0),
-                        new Pose2d(new Vector2d(RED2_SPIKE3_X, RED2_SPIKE_Y), 0.0),
-                };
-            case BLUE1:
-                return new Pose2d[]{
-                        new Pose2d(new Vector2d(BLUE1_SPIKE1_X, BLUE1_SPIKE_Y), Math.PI),
-                        new Pose2d(new Vector2d(BLUE1_SPIKE2_X, BLUE1_SPIKE_Y), Math.PI),
-                        new Pose2d(new Vector2d(BLUE1_SPIKE3_X, BLUE1_SPIKE_Y), Math.PI),
-                };
-            case BLUE2:
-                return new Pose2d[]{
-                        new Pose2d(new Vector2d(BLUE2_SPIKE1_X, BLUE2_SPIKE_Y), Math.PI),
-                        new Pose2d(new Vector2d(BLUE2_SPIKE2_X, BLUE2_SPIKE_Y), Math.PI),
-                        new Pose2d(new Vector2d(BLUE2_SPIKE3_X, BLUE2_SPIKE_Y), Math.PI),
-                };
-            case NONE:
-            default:
-                return new Pose2d[0];
-        }
     }
 
     /**

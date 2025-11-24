@@ -17,8 +17,6 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.AutoSelector.AutoMode;
-import org.firstinspires.ftc.teamcode.vision.AprilTagVision;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +37,8 @@ import java.util.List;
  *        - Shoot 3 more.
  */
 @Config
-@Autonomous(name = "Auto_DECODE_NoDrive", group = "RR")
-public final class Auto_DECODE_NoDrive extends BaseAutoRR {
+@Autonomous(name = "Auto_DECODE_SweetSpot", group = "RR")
+public final class Auto_DECODE_SweetSpot extends BaseAutoRR {
     private IntakeSubsystem intake;
     private IndexerSubsystem indexer;
     private ShooterSubsystem shooter;
@@ -51,7 +49,7 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
     private boolean lastStepDetectedColor = false;
 
     // How far “in front of” a spike we stage before driving straight into it.
-    public static double SPIKE_APPROACH_OFFSET = 8.0;   // inches along +Y/-Y direction
+    public static double SPIKE_APPROACH_OFFSET = 8.0;   // inches along +X/-X direction
 
     // How many notes to shoot per cycle.
     public static int SHOTS_PER_CYCLE = 3;
@@ -98,19 +96,30 @@ public final class Auto_DECODE_NoDrive extends BaseAutoRR {
         List<Action> sequence = new ArrayList<>();
 
         // d) Move from starting pose to shooting pose.
-        /*
         Action toFirstShoot = drive.actionBuilder(startPose)
-                .lineToX(shootPose.position.x)
-                .lineToY(shootPose.position.y)
+                .strafeToSplineHeading(shootPose.position,shootPose.heading)
+//                .strafeTo(shootPose.position)
+//                .turnTo(shootPose.heading)
+
+//                .turn(shootPose.heading)
+//                .setTangent(shootPose.heading)
+//                .lineToXSplineHeading(shootPose.position.x, shootPose.heading)
+//                .waitSeconds(3)
+//                .lineToXSplineHeading(46, Math.toRadians(180))
+//                .waitSeconds(3)
+
+
+//                .splineTo(new Vector2d(shootPose.position.x,shootPose.position.y),shootPose.heading)
+//                .lineToX(shootPose.position.x)
+//                .lineToY(shootPose.position.y)
                 // if you later add turn/heading support:
                 // .turn(shootPose.heading - startPose.heading)
                 .build();
         sequence.add(toFirstShoot);
-        */
 
         // e) Shoot 3 preloads at first shooting pose.
-        sequence.add(makeShootBurstAction(
-                shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "preload"));
+//        sequence.add(makeShootBurstAction(
+//                shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "preload"));
 
         // After completing the preload burst and post-burst hold,
         // explicitly idle the shooter and drop the ramp as a safety reset.

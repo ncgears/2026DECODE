@@ -33,6 +33,36 @@ import java.util.EnumMap;
  * All units: inches and radians.
  */
 public abstract class BaseAutoRR extends LinearOpMode {
+    // ---- Tunable field coordinates (inches, radians) ----
+    // Shooting pose per AutoMode. Replace with real DECODE coordinates.
+    public static double RED_SHOOT_X   = -48.0;
+    public static double RED_SHOOT_Y   = 48.0;
+    public static double RED_SHOOT_HE  =  Math.toRadians(135.0);
+
+    public static double BLUE_SHOOT_X  =  48.0;
+    public static double BLUE_SHOOT_Y  =  48.0;
+    public static double BLUE_SHOOT_HE = Math.toRadians(-135.0);   // facing "back" toward blue goal
+
+    // ---- Spike stack geometry (DECODE) ----
+    // translation: +x is toward blue, +y is toward obelisk
+    // heading: obelisk at 180, red at +145, blue at -145
+
+    // RED:
+    public static double RED_SPIKE_X = -48.0;          // 24" in from red goal wall
+    public static double RED_SPIKE1_Y = 12.0;         // PPG spike (closest to goal)
+    public static double RED_SPIKE2_Y = -12.0;         // PGP
+    public static double RED_SPIKE3_Y = -36.0;         // GPP
+    public static double RED_HUMAN_X = -62.0;
+    public static double RED_HUMAN_Y = 63.0;
+
+    // BLUE
+    public static double BLUE_SPIKE_X =  48.0;         // 24" in from blue goal wall
+    public static double BLUE_SPIKE1_Y =  60.0;        // PPG
+    public static double BLUE_SPIKE2_Y =  84.0;        // PGP
+    public static double BLUE_SPIKE3_Y = 108.0;        // GPP
+    public static double BLUE_HUMAN_X = 62.0;
+    public static double BLUE_HUMAN_Y = 63.0;
+
     // --- Motif detection shared by all RR autos ---
     private AprilTagVision motifVision = null;
     private String motifCode = "NONE";
@@ -46,11 +76,18 @@ public abstract class BaseAutoRR extends LinearOpMode {
     private final EnumMap<AutoMode, Pose2d> startPoses = new EnumMap<>(AutoMode.class);
 
     public BaseAutoRR() {
-        // Placeholder poses; replace with real field coordinates.
-        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(0.0, 0.0), 0.0));
-        startPoses.put(AutoMode.RED2,  new Pose2d(new Vector2d(0.0, 0.0), 0.0));
+        // translation: +x is toward blue, +y is toward obelisk
+        // heading: obelisk at 180, red at +145, blue at -145
+        //placeholders
+        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-39.0, 64.0), Math.toRadians(90.0)));
+        startPoses.put(AutoMode.RED2,  new Pose2d(new Vector2d(-55.5, 39.5), Math.toRadians(165.0)));
         startPoses.put(AutoMode.BLUE1, new Pose2d(new Vector2d(0.0, 0.0), 0.0));
         startPoses.put(AutoMode.BLUE2, new Pose2d(new Vector2d(0.0, 0.0), 0.0));
+        //actual
+//        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-39.0, 64.5), Math.toRadians(90.0)));
+//        startPoses.put(AutoMode.RED2,  new Pose2d(new Vector2d(-55.5, -55.5), Math.toRadians(165.0)));
+//        startPoses.put(AutoMode.BLUE1, new Pose2d(new Vector2d(39.0, 64.5), Math.toRadians(-90.0)));
+//        startPoses.put(AutoMode.BLUE2, new Pose2d(new Vector2d(55.5, 55.5), Math.toRadians(-165.0)));
         startPoses.put(AutoMode.NONE,  new Pose2d(new Vector2d(0.0, 0.0), 0.0));
     }
 
@@ -227,4 +264,57 @@ public abstract class BaseAutoRR extends LinearOpMode {
         }
     }
 
+    /**
+     * Shooter poses per alliance/mode.
+     */
+    Pose2d getShootPoseFor(Alliance alliance, AutoMode mode) {
+        switch (alliance) {
+            case RED:
+                return new Pose2d(new Vector2d(RED_SHOOT_X, RED_SHOOT_Y), RED_SHOOT_HE);
+            case BLUE:
+                return new Pose2d(new Vector2d(BLUE_SHOOT_X, BLUE_SHOOT_Y), BLUE_SHOOT_HE);
+            case NONE:
+            default:
+                // Fallback: shouldn't ever be used in a real match.
+                return new Pose2d(new Vector2d(0.0, 0.0), 0.0);
+        }
+    }
+
+    /**
+     * Human poses per alliance/mode.
+     */
+    private Pose2d getHumanPoseFor(Alliance alliance, AutoMode mode) {
+        switch (alliance) {
+            case RED:
+                return new Pose2d(new Vector2d(RED_HUMAN_X, RED_HUMAN_Y), Math.toRadians(90.0));
+            case BLUE:
+                return new Pose2d(new Vector2d(BLUE_HUMAN_X, BLUE_HUMAN_Y), Math.toRadians(-90.0));
+            case NONE:
+            default:
+                return new Pose2d(new Vector2d(0.0, 0.0), 0.0);
+        }
+    }
+
+    /**
+     * Stack poses per alliance/mode.
+     */
+    Pose2d[] getStackPosesFor(Alliance alliance, AutoMode mode) {
+        switch (alliance) {
+            case RED:
+                return new Pose2d[]{
+                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE1_Y), 0.0),
+                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE2_Y), 0.0),
+                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE3_Y), 0.0),
+                };
+            case BLUE:
+                return new Pose2d[]{
+                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE1_Y), Math.PI),
+                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE2_Y), Math.PI),
+                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE3_Y), Math.PI),
+                };
+            case NONE:
+            default:
+                return new Pose2d[0];
+        }
+    }
 }
