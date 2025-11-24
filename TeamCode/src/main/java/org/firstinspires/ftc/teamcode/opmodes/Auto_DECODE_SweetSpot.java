@@ -92,6 +92,8 @@ public final class Auto_DECODE_SweetSpot extends BaseAutoRR {
         Pose2d shootPose = getShootPoseFor(alliance, autoMode);
         Pose2d[] stacks  = getStackPosesFor(alliance, autoMode);
 
+        drive.localizer.setPose(startPose);
+
         // ---- Build the main RR action sequence ----
         List<Action> sequence = new ArrayList<>();
 
@@ -100,20 +102,8 @@ public final class Auto_DECODE_SweetSpot extends BaseAutoRR {
                 .strafeToSplineHeading(shootPose.position,shootPose.heading)
 //                .strafeTo(shootPose.position)
 //                .turnTo(shootPose.heading)
-
-//                .turn(shootPose.heading)
-//                .setTangent(shootPose.heading)
-//                .lineToXSplineHeading(shootPose.position.x, shootPose.heading)
 //                .waitSeconds(3)
-//                .lineToXSplineHeading(46, Math.toRadians(180))
-//                .waitSeconds(3)
-
-
-//                .splineTo(new Vector2d(shootPose.position.x,shootPose.position.y),shootPose.heading)
-//                .lineToX(shootPose.position.x)
-//                .lineToY(shootPose.position.y)
-                // if you later add turn/heading support:
-                // .turn(shootPose.heading - startPose.heading)
+//                 .turn(shootPose.heading - startPose.heading)
                 .build();
         sequence.add(toFirstShoot);
 

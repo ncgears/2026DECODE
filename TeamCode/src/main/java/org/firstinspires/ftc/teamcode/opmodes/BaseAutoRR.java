@@ -78,16 +78,11 @@ public abstract class BaseAutoRR extends LinearOpMode {
     public BaseAutoRR() {
         // translation: +x is toward blue, +y is toward obelisk
         // heading: obelisk at 180, red at +145, blue at -145
-        //placeholders
         startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-39.0, 64.0), Math.toRadians(90.0)));
+//        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-48, 48.0), Math.toRadians(90.0)));
         startPoses.put(AutoMode.RED2,  new Pose2d(new Vector2d(-55.5, 39.5), Math.toRadians(165.0)));
-        startPoses.put(AutoMode.BLUE1, new Pose2d(new Vector2d(0.0, 0.0), 0.0));
-        startPoses.put(AutoMode.BLUE2, new Pose2d(new Vector2d(0.0, 0.0), 0.0));
-        //actual
-//        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-39.0, 64.5), Math.toRadians(90.0)));
-//        startPoses.put(AutoMode.RED2,  new Pose2d(new Vector2d(-55.5, -55.5), Math.toRadians(165.0)));
-//        startPoses.put(AutoMode.BLUE1, new Pose2d(new Vector2d(39.0, 64.5), Math.toRadians(-90.0)));
-//        startPoses.put(AutoMode.BLUE2, new Pose2d(new Vector2d(55.5, 55.5), Math.toRadians(-165.0)));
+        startPoses.put(AutoMode.BLUE1, new Pose2d(new Vector2d(39.0, 64.0), Math.toRadians(-90.0)));
+        startPoses.put(AutoMode.BLUE2, new Pose2d(new Vector2d(55.5, 39.5), Math.toRadians(-165.0)));
         startPoses.put(AutoMode.NONE,  new Pose2d(new Vector2d(0.0, 0.0), 0.0));
     }
 
