@@ -37,11 +37,11 @@ public abstract class BaseAutoRR extends LinearOpMode {
     // Shooting pose per AutoMode. Replace with real DECODE coordinates.
     public static double RED_SHOOT_X   = -48.0;
     public static double RED_SHOOT_Y   = 48.0;
-    public static double RED_SHOOT_HE  =  Math.toRadians(135.0);
+    public static double RED_SHOOT_HE  =  Math.toRadians(-45.0);
 
     public static double BLUE_SHOOT_X  =  48.0;
     public static double BLUE_SHOOT_Y  =  48.0;
-    public static double BLUE_SHOOT_HE = Math.toRadians(-135.0);   // facing "back" toward blue goal
+    public static double BLUE_SHOOT_HE = Math.toRadians(45.0);   // facing "back" toward blue goal
 
     // ---- Spike stack geometry (DECODE) ----
     // translation: +x is toward blue, +y is toward obelisk
@@ -78,11 +78,11 @@ public abstract class BaseAutoRR extends LinearOpMode {
     public BaseAutoRR() {
         // translation: +x is toward blue, +y is toward obelisk
         // heading: obelisk at 180, red at +145, blue at -145
-        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-39.0, 64.0), Math.toRadians(90.0)));
+        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-39.0, 64.0), Math.toRadians(-90.0)));
 //        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-48, 48.0), Math.toRadians(90.0)));
-        startPoses.put(AutoMode.RED2,  new Pose2d(new Vector2d(-55.5, 39.5), Math.toRadians(165.0)));
-        startPoses.put(AutoMode.BLUE1, new Pose2d(new Vector2d(39.0, 64.0), Math.toRadians(-90.0)));
-        startPoses.put(AutoMode.BLUE2, new Pose2d(new Vector2d(55.5, 39.5), Math.toRadians(-165.0)));
+        startPoses.put(AutoMode.RED2,  new Pose2d(new Vector2d(-55.5, 39.5), Math.toRadians(-165.0)));
+        startPoses.put(AutoMode.BLUE1, new Pose2d(new Vector2d(39.0, 64.0), Math.toRadians(90.0)));
+        startPoses.put(AutoMode.BLUE2, new Pose2d(new Vector2d(55.5, 39.5), Math.toRadians(165.0)));
         startPoses.put(AutoMode.NONE,  new Pose2d(new Vector2d(0.0, 0.0), 0.0));
     }
 
