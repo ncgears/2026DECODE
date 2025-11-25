@@ -57,9 +57,9 @@ public abstract class BaseAutoRR extends LinearOpMode {
 
     // BLUE
     public static double BLUE_SPIKE_X =  48.0;         // 24" in from blue goal wall
-    public static double BLUE_SPIKE1_Y =  60.0;        // PPG
-    public static double BLUE_SPIKE2_Y =  84.0;        // PGP
-    public static double BLUE_SPIKE3_Y = 108.0;        // GPP
+    public static double BLUE_SPIKE1_Y =  12.0;        // PPG
+    public static double BLUE_SPIKE2_Y = -12.0;        // PGP
+    public static double BLUE_SPIKE3_Y = -36.0;        // GPP
     public static double BLUE_HUMAN_X = 62.0;
     public static double BLUE_HUMAN_Y = 63.0;
 
