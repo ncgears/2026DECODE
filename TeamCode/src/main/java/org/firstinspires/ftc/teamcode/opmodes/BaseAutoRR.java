@@ -52,16 +52,22 @@ public abstract class BaseAutoRR extends LinearOpMode {
     public static double RED_SPIKE1_Y = 12.0;         // PPG spike (closest to goal)
     public static double RED_SPIKE2_Y = -12.0;         // PGP
     public static double RED_SPIKE3_Y = -36.0;         // GPP
+    public static double RED_SPIKE_HE = Math.toRadians(-90.0);
     public static double RED_HUMAN_X = -62.0;
     public static double RED_HUMAN_Y = 63.0;
+    public static double RED_HUMAN_HE = Math.toRadians(-90.0);
+
 
     // BLUE
     public static double BLUE_SPIKE_X =  48.0;         // 24" in from blue goal wall
     public static double BLUE_SPIKE1_Y =  12.0;        // PPG
     public static double BLUE_SPIKE2_Y = -12.0;        // PGP
     public static double BLUE_SPIKE3_Y = -36.0;        // GPP
+    public static double BLUE_SPIKE_HE = Math.toRadians(90.0);
     public static double BLUE_HUMAN_X = 62.0;
     public static double BLUE_HUMAN_Y = 63.0;
+    public static double BLUE_HUMAN_HE = Math.toRadians(90.0);
+
 
     // --- Motif detection shared by all RR autos ---
     private AprilTagVision motifVision = null;
@@ -281,9 +287,9 @@ public abstract class BaseAutoRR extends LinearOpMode {
     private Pose2d getHumanPoseFor(Alliance alliance, AutoMode mode) {
         switch (alliance) {
             case RED:
-                return new Pose2d(new Vector2d(RED_HUMAN_X, RED_HUMAN_Y), Math.toRadians(90.0));
+                return new Pose2d(new Vector2d(RED_HUMAN_X, RED_HUMAN_Y), RED_HUMAN_HE);
             case BLUE:
-                return new Pose2d(new Vector2d(BLUE_HUMAN_X, BLUE_HUMAN_Y), Math.toRadians(-90.0));
+                return new Pose2d(new Vector2d(BLUE_HUMAN_X, BLUE_HUMAN_Y), BLUE_HUMAN_HE);
             case NONE:
             default:
                 return new Pose2d(new Vector2d(0.0, 0.0), 0.0);
@@ -297,15 +303,15 @@ public abstract class BaseAutoRR extends LinearOpMode {
         switch (alliance) {
             case RED:
                 return new Pose2d[]{
-                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE1_Y), 0.0),
-                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE2_Y), 0.0),
-                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE3_Y), 0.0),
+                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE1_Y), RED_SPIKE_HE),
+                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE2_Y), RED_SPIKE_HE),
+                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE3_Y), RED_SPIKE_HE),
                 };
             case BLUE:
                 return new Pose2d[]{
-                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE1_Y), Math.PI),
-                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE2_Y), Math.PI),
-                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE3_Y), Math.PI),
+                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE1_Y), BLUE_SPIKE_HE),
+                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE2_Y), BLUE_SPIKE_HE),
+                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE3_Y), BLUE_SPIKE_HE),
                 };
             case NONE:
             default:

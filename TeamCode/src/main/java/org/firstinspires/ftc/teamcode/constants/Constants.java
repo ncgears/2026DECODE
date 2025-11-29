@@ -122,15 +122,15 @@ public final class Constants {
 
         // Basic thresholds for classifying REV color sensor readings.
         // These are intentionally simple; you'll tune them in your calibration OpMode.
-        public static final int   COLOR_ALPHA_MIN = 115;   // below this, treat as "no piece"
-        public static final float COLOR_MIN_SAT   = 0.30f; // very low saturation => probably not reliable
+        public static final int   COLOR_ALPHA_MIN = 150;   // below this, treat as "no piece"
+        public static final float COLOR_MIN_SAT   = 0.32f; // very low saturation => probably not reliable
 
         // Hue ranges (degrees 0..360) for game-piece colors.
         // Approximate, to be refined in your calibration OpMode.
-        public static final float PURPLE_HUE_MIN = 215f;
-        public static final float PURPLE_HUE_MAX = 245f;
-        public static final float GREEN_HUE_MIN  = 145f;
-        public static final float GREEN_HUE_MAX  = 175f;
+        public static final float PURPLE_HUE_MIN = 205f;
+        public static final float PURPLE_HUE_MAX = 225f;
+        public static final float GREEN_HUE_MIN  = 135f;
+        public static final float GREEN_HUE_MAX  = 165f;
 
         public static final double POWER_FWD = 1.00;           // CR servo forward power
         public static final boolean DIR_FORWARD_IS_POSITIVE = false; // flip if wiring requires
@@ -294,7 +294,7 @@ public final class Constants {
     /** Global Constants. */
     public static final class Global {
         public static final boolean ENABLE_DASHBOARD_OPMODE = true; //enable "Dashboard Enable/Disable" opmode
-        public static final boolean ENABLE_TUNING_OPMODES = true; //enable all the tuning opmodes
+        public static final boolean ENABLE_TUNING_OPMODES = false; //enable all the tuning opmodes
     }
 
     private Constants() {}

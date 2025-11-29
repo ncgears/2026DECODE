@@ -30,7 +30,7 @@ import java.io.FileWriter;
  *  - Sticks drive like TeleOp_Drive (left XY, right X rotate)
  */
 @TeleOp(name = "Calibration_Pinpoint_Drive", group = "Tuning")
-//@Disabled
+@Disabled
 public class Calibration_Pinpoint_Drive extends OpMode {
 
     // Drive

@@ -6,8 +6,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
@@ -17,8 +17,6 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.AutoSelector.AutoMode;
-import org.firstinspires.ftc.teamcode.vision.AprilTagVision;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,24 +39,34 @@ import java.util.List;
 @Config
 @Autonomous(name = "Auto_DECODE_Main", group = "RR")
 public final class Auto_DECODE_Main extends BaseAutoRR {
+    private IntakeSubsystem intake;
+    private IndexerSubsystem indexer;
+    private ShooterSubsystem shooter;
+    private boolean subsystemsInitialized = false;
+
+    // For preload telemetry/debug
+    private IndexerSubsystem.Item lastDetectedItem   = IndexerSubsystem.Item.NONE;
+    private boolean lastStepDetectedColor = false;
 
     // How far “in front of” a spike we stage before driving straight into it.
-    public static double SPIKE_APPROACH_OFFSET = 8.0;   // inches along +Y/-Y direction
+    public static double SPIKE_APPROACH_OFFSET = 8.0;   // inches along +X/-X direction
 
     // How many notes to shoot per cycle.
     public static int SHOTS_PER_CYCLE = 3;
-    public static int MAX_STACKS      = 3;
+    public static int MAX_STACKS      = 1;
 
     @Override
     protected Action buildRoutine(MecanumDrive drive,
                                   Alliance alliance,
                                   AutoMode autoMode,
                                   Pose2d startPose) {
+        // Make sure we have subsystems, whether or not initLoop ran
+        ensureSubsystems();
 
         // ---- Subsystems used during this auto ----
-        final IntakeSubsystem  intake  = new IntakeSubsystem(hardwareMap);
-        final IndexerSubsystem indexer = new IndexerSubsystem(hardwareMap);
-        final ShooterSubsystem shooter = new ShooterSubsystem(hardwareMap);
+        final IntakeSubsystem  intake  = this.intake;
+        final IndexerSubsystem indexer = this.indexer;
+        final ShooterSubsystem shooter = this.shooter;
 
         boolean preferRed = (alliance == Alliance.RED);
 
@@ -73,6 +81,7 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
 
         // ---- (c) Rotate queue for shooting order ----
         indexer.rotateForMotif(motif);
+
         playAudio(String.format("%s", alliance.toString()),500);
         playAudio(String.format("%s", autoMode.toString()),500);
         playAudio(String.format("%s", motif),500);
@@ -83,15 +92,14 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
         Pose2d shootPose = getShootPoseFor(alliance, autoMode);
         Pose2d[] stacks  = getStackPosesFor(alliance, autoMode);
 
+        drive.localizer.setPose(startPose);
+
         // ---- Build the main RR action sequence ----
         List<Action> sequence = new ArrayList<>();
 
         // d) Move from starting pose to shooting pose.
 //        Action toFirstShoot = drive.actionBuilder(startPose)
-//                .lineToX(shootPose.position.x)
-//                .strafeTo(shootPose.position.y)
-//                // if you later add turn/heading support:
-//                // .turn(shootPose.heading - startPose.heading)
+//                .strafeToSplineHeading(shootPose.position,shootPose.heading)
 //                .build();
 //        sequence.add(toFirstShoot);
 
@@ -99,31 +107,45 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
         sequence.add(makeShootBurstAction(
                 shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "preload"));
 
+        // After completing the preload burst and post-burst hold,
+        // explicitly idle the shooter and drop the ramp as a safety reset.
+        sequence.add(new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                shooter.idle();
+                shooter.setRampEngaged(false);
+                packet.put("Shooter", "Idle after preload burst");
+                return false; // one-shot action
+            }
+        });
+
         // f/g/e) For each stack: go collect, come back, rotate for motif, shoot.
         int stackCount = Math.min(MAX_STACKS, stacks.length);
-        Pose2d currentPose = shootPose;
+        Pose2d currentPose = startPose;
 
         for (int i = 0; i < stackCount; i++) {
             Pose2d stackPose = stacks[i];
 
             // Compute a pre-approach pose SPIKE_APPROACH_OFFSET farther from the wall.
-            double approachSign = Math.signum(stackPose.position.y); // +1 for +Y wall, -1 for -Y wall
-            double preY = stackPose.position.y + approachSign * SPIKE_APPROACH_OFFSET;
+            double approachSign = Math.signum(stackPose.position.x); // +1 for red wall, -1 for blue wall
+            double preX = stackPose.position.x + approachSign * SPIKE_APPROACH_OFFSET;
+            double preY = startPose.position.y; // + approachSign * SPIKE_APPROACH_OFFSET;
 
             Pose2d preApproach = new Pose2d(
-                    new Vector2d(stackPose.position.x, preY),
+//                    new Vector2d(preX, preY),
+                    new Vector2d(-6.0, 48.0),
+                    //TODO: This robot is moving -6,+48 from 0,0 origin which is acting like the starting location of the robot
                     stackPose.heading
             );
 
             // f) Dogleg: move to pre-approach, then straight into the spike.
             Action driveToStackPre = drive.actionBuilder(currentPose)
-                    .lineToX(preApproach.position.x)
-                    .lineToY(preApproach.position.y)
+                    .strafeToSplineHeading(preApproach.position,preApproach.heading)
                     .build();
+            sequence.add(driveToStackPre);
 
             Action driveIntoStack = drive.actionBuilder(preApproach)
-                    .lineToX(stackPose.position.x)
-                    .lineToY(stackPose.position.y)
+                    .strafeToSplineHeading(stackPose.position,stackPose.heading)
                     .build();
 
             Action enableIntake = new Action() {
@@ -152,15 +174,14 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
 
             sequence.add(new SequentialAction(
                     enableIntake,
-                    driveToStackPre,
-                    driveIntoStack,
-                    disableIntake
+                    driveToStackPre
+//                    driveIntoStack,
+//                    disableIntake
             ));
 
             // g) Return to shooting pose, rotate for motif, then shoot...
             Action backToShoot = drive.actionBuilder(stackPose)
-                    .lineToX(shootPose.position.x)
-                    .lineToY(shootPose.position.y)
+                    .strafeToSplineHeading(shootPose.position,shootPose.heading)
                     .build();
 
             Action rotateForMotif = new Action() {
@@ -175,17 +196,95 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
                 }
             };
 
-            sequence.add(new SequentialAction(
-                    backToShoot,
-                    rotateForMotif,
-                    makeShootBurstAction(
-                            shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "cycle" + (i + 1))
-            ));
+//            sequence.add(new SequentialAction(
+//                    backToShoot,
+//                    rotateForMotif,
+//                    makeShootBurstAction(
+//                            shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "cycle" + (i + 1))
+//            ));
 
             currentPose = shootPose;
         }
 
         return new SequentialAction(sequence.toArray(new Action[0]));
+    }
+
+    @Override
+    protected void initLoopExtended() {
+        // Make sure subsystems exist for pre-start
+        ensureSubsystems();
+
+        // Let the indexer run its internal state machine.
+        indexer.loop();
+
+        // Optional: you can choose to keep intake stopped during preload and
+        // just let humans drop into the hopper by hand.
+        intake.stop();
+
+        // Telemetry so drive team can see queue status during INIT
+        telemetry.addData("Preload S0",  indexer.getS0());
+        telemetry.addData("Preload S1L", indexer.getS1L());
+        telemetry.addData("Preload S2",  indexer.getS2());
+
+        runIndexerPreload();
+    }
+
+    private void ensureSubsystems() {
+        if (intake == null) {
+            intake = new IntakeSubsystem(hardwareMap);
+        }
+        if (indexer == null) {
+            indexer = new IndexerSubsystem(hardwareMap);
+        }
+        if (shooter == null) {
+            shooter = new ShooterSubsystem(hardwareMap);
+        }
+    }
+
+    private boolean isQueueFull() {
+        return indexer.getS0()  != IndexerSubsystem.Item.NONE &&
+                indexer.getS1L() != IndexerSubsystem.Item.NONE &&
+                indexer.getS2()  != IndexerSubsystem.Item.NONE;
+    }
+
+    /**
+     * INIT-only auto-preload:
+     * - Keep indexer SM updated.
+     * - If not stepping and queue not full: detect color at S1L, and advance one step when we see a ball.
+     * - If queue is full: still sample color for S1L but do not move.
+     */
+    private void runIndexerPreload() {
+        // Keep state machine updated
+        indexer.loop();
+        boolean isStepping = indexer.isStepping();
+
+        boolean queueFull = isQueueFull();
+        lastStepDetectedColor = false;
+
+        if (!isStepping) {
+            if (!queueFull) {
+                boolean colorPresent = indexer.detectAtS1L();
+                if (colorPresent) {
+                    lastStepDetectedColor = true;
+                    lastDetectedItem = indexer.getS1L();
+                    indexer.startStep(); // advance away from the ball
+                }
+            } else {
+                // Queue full: keep S1L's color up-to-date, but don't move
+                indexer.detectAtS1L();
+            }
+        }
+
+        // Telemetry similar to Test_Intake_Indexer so you can debug easily
+        telemetry.addData("queueFull", queueFull);
+        telemetry.addData("lastDetectedItem", "%s (updatedThisLoop=%b)",
+                lastDetectedItem, lastStepDetectedColor);
+        telemetry.addData("colorMode",
+                indexer.isRevColorSensorHealthy()
+                        ? "REV"
+                        : indexer.isDioColorAvailable()
+                        ? "DIO (fallback)"
+                        : "NO COLOR SENSOR");
     }
 
     /**
