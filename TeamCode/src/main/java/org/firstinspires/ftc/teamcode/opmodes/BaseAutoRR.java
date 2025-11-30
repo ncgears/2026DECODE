@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import android.annotation.SuppressLint;
+
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.acmerobotics.dashboard.canvas.Canvas;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
@@ -18,6 +22,7 @@ import org.firstinspires.ftc.teamcode.constants.Constants;
 import org.firstinspires.ftc.teamcode.vision.AprilTagVision;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
+import androidx.annotation.NonNull;
 import java.util.List;
 import java.util.EnumMap;
 
@@ -317,5 +322,41 @@ public abstract class BaseAutoRR extends LinearOpMode {
             default:
                 return new Pose2d[0];
         }
+    }
+
+    protected Action withPoseTelemetry(MecanumDrive drive, Action inner) {
+        return new Action() {
+            @SuppressLint("DefaultLocale")
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                boolean stillRunning = inner.run(packet);
+
+                // Current pose from Pinpoint localizer
+                Pose2d curr = drive.localizer.getPose();
+                T.t(1, "Pose.curr",
+                        String.format("x=%.1f  y=%.1f  h=%.1f°",
+                                curr.position.x,
+                                curr.position.y,
+                                Math.toDegrees(curr.heading.toDouble())));
+
+                // Target pose from MecanumDrive (may be null when idle)
+                Pose2d tgt = drive.getLastTargetPose();
+                if (tgt != null) {
+                    T.t(1, "Pose.tgt",
+                            String.format("x=%.1f  y=%.1f  h=%.1f°",
+                                    tgt.position.x,
+                                    tgt.position.y,
+                                    Math.toDegrees(tgt.heading.toDouble())));
+                }
+
+                telemetry.update();
+                return stillRunning;
+            }
+
+            @Override
+            public void preview(Canvas c) {
+                inner.preview(c);
+            }
+        };
     }
 }

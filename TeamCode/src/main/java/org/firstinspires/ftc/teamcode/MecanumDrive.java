@@ -156,10 +156,6 @@ public final class MecanumDrive {
             return pose;
         }
 
-        public Pose2d getLastTargetPose() {
-            return lastTargetPose;
-        }
-
         @Override
         public PoseVelocity2d update() {
             PositionVelocityPair leftFrontPosVel = leftFront.getPositionAndVelocity();
@@ -477,6 +473,10 @@ public final class MecanumDrive {
             c.setStroke("#7C4DFF7A");
             c.fillCircle(turn.beginPose.position.x, turn.beginPose.position.y, 2);
         }
+    }
+
+    public Pose2d getLastTargetPose() {
+        return lastTargetPose;
     }
 
     public PoseVelocity2d updatePoseEstimate() {
