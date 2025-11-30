@@ -124,6 +124,7 @@ public final class Constants {
         // These are intentionally simple; you'll tune them in your calibration OpMode.
         public static final int   COLOR_ALPHA_MIN = 150;   // below this, treat as "no piece"
         public static final float COLOR_MIN_SAT   = 0.32f; // very low saturation => probably not reliable
+        public static final float COLOR_MIN_SAT_GREEN = 0.5f; //green has different sat requirement to work around false positives
 
         // Hue ranges (degrees 0..360) for game-piece colors.
         // Approximate, to be refined in your calibration OpMode.

@@ -188,7 +188,8 @@ public class IndexerSubsystem {
         if (hue >= Constants.Indexer.PURPLE_HUE_MIN && hue <= Constants.Indexer.PURPLE_HUE_MAX) {
             return Item.PURPLE;
         }
-        if (hue >= Constants.Indexer.GREEN_HUE_MIN && hue <= Constants.Indexer.GREEN_HUE_MAX) {
+
+        if (hue >= Constants.Indexer.GREEN_HUE_MIN && hue <= Constants.Indexer.GREEN_HUE_MAX && sat >= Constants.Indexer.COLOR_MIN_SAT_GREEN) {
             return Item.GREEN;
         }
 
