@@ -92,8 +92,6 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
         Pose2d shootPose = getShootPoseFor(alliance, autoMode);
         Pose2d[] stacks  = getStackPosesFor(alliance, autoMode);
 
-        drive.localizer.setPose(startPose);
-
         // ---- Build the main RR action sequence ----
         List<Action> sequence = new ArrayList<>();
 
@@ -123,6 +121,14 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
         int stackCount = Math.min(MAX_STACKS, stacks.length);
         Pose2d currentPose = startPose;
 
+        drive.localizer.setPose(startPose); //make sure the localizer has current position
+
+        if (autoMode == AutoMode.NONE) { //guard against autoMode none so we dont move
+            T.banner(1, "ERROR: Auto mode NONE – check switches!");
+            telemetry.update();
+            return null;
+        }
+
         for (int i = 0; i < stackCount; i++) {
             Pose2d stackPose = stacks[i];
 
@@ -142,7 +148,7 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
             Action driveToStackPre = drive.actionBuilder(currentPose)
                     .strafeToSplineHeading(preApproach.position,preApproach.heading)
                     .build();
-            sequence.add(driveToStackPre);
+            sequence.add(driveToStackPre); //temporarily add this to stack sequence for debug
 
             Action driveIntoStack = drive.actionBuilder(preApproach)
                     .strafeToSplineHeading(stackPose.position,stackPose.heading)
@@ -172,11 +178,23 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
                 }
             };
 
+            Action noop = new Action() {
+                private boolean done = false;
+                @Override
+                public boolean run(@NonNull TelemetryPacket packet) {
+                    if (!done) {
+                        done = true;
+                    }
+                    return false;
+                }
+            };
+
             sequence.add(new SequentialAction(
-                    enableIntake,
-                    driveToStackPre
+//                    driveToStackPre,
+//                    enableIntake,
 //                    driveIntoStack,
 //                    disableIntake
+                    noop
             ));
 
             // g) Return to shooting pose, rotate for motif, then shoot...
