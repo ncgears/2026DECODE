@@ -173,7 +173,7 @@ public abstract class BaseAutoRR extends LinearOpMode {
         Action routine = buildRoutine(drive, alliance, autoMode, startPose);
 
         if (routine != null) {
-            Actions.runBlocking(routine);
+            Actions.runBlocking(withPoseTelemetry(drive,routine));
         }
     }
 
