@@ -22,6 +22,7 @@ public class ShooterSubsystem {
     private long holdReleaseStartMs = 0L;
     private boolean shotInProgress = false;
     private boolean shotRequested = false;
+    private boolean reducedPowerMode = false;
 
     // ---- Autonomous burst-fire state ----
     private boolean autonActive = false;
@@ -69,12 +70,128 @@ public class ShooterSubsystem {
     /** Stop flywheels completely. */
     public void stop() { setTargetPower(0.0); }
 
+    /** Enable/disable reduced power mode (e.g. LB held in TeleOp). */
+    public void setReducedPowerMode(boolean reduced) {
+        this.reducedPowerMode = reduced;
+    }
+
     /** Run flywheels to target shooting power. */
-    public void runToTarget() { setTargetPower(Constants.Shooter.TARGET_POWER); }
+    public void runToTarget() {
+        double target = reducedPowerMode
+                ? Constants.Shooter.TARGET_POWER_REDUCED
+                : Constants.Shooter.TARGET_POWER;
+        setTargetPower(target);
+    }
 
     /** Engage or retract the feed ramp. */
     public void setRampEngaged(boolean engaged) {
         ramp.setPosition(engaged ? Constants.Shooter.RAMP_ENGAGED : Constants.Shooter.RAMP_RETRACTED);
+    }
+
+    /**
+     * TeleOp fire control with decoupled feed:
+     *  - fireHeld (RT): spin-up + ramp control
+     *  - feedHeld (LT): actually advance the indexer (startStepForShot)
+     *
+     * RT can be held to keep the shooter hot and ramp engaged.
+     * LT tap = single shot; LT hold = stream (with dwell).
+     */
+    public void handleTeleopFire(boolean fireHeld, boolean feedHeld, IndexerSubsystem indexer) {
+        long now = System.currentTimeMillis();
+        boolean rt = fireHeld;
+
+        // Rising edge of RT: user wants shooter hot; start spin-up timing.
+        if (rt && !triggerPrev) {
+            boolean wasAtTarget = (targetPower >= Constants.Shooter.TARGET_POWER);
+
+            // Ensure we're going to target power
+            runToTarget();
+
+            int spinupMs = Math.max(
+                    Constants.Shooter.SPINUP_WAIT_MS,
+                    Constants.Shooter.RAMP_UP_TIME_MS
+            );
+
+            if (!wasAtTarget) {
+                // Start a new spin-up
+                spinStartMs = now;
+            } else if (spinStartMs == 0L) {
+                // Treat as already spun-up if we were hot coming in
+                spinStartMs = now - spinupMs;
+            }
+
+            // New fire hold: reset dwell timing for this RT session
+            lastShotCompleteMs = 0L;
+        }
+
+        int spinupMs = Math.max(
+                Constants.Shooter.SPINUP_WAIT_MS,
+                Constants.Shooter.RAMP_UP_TIME_MS
+        );
+        boolean spunUp = (spinStartMs > 0L) && ((now - spinStartMs) >= spinupMs);
+
+        boolean indexerStepping = indexer.isStepping();
+
+        // Track when an in-progress shot finishes
+        if (shotInProgress && !indexerStepping) {
+            shotInProgress = false;
+            lastShotCompleteMs = now;
+        }
+
+        boolean dwellOk =
+                (lastShotCompleteMs == 0L) ||
+                        ((now - lastShotCompleteMs) >= Constants.Shooter.INTER_SHOT_DWELL_MS);
+
+        // LT = "I want to feed shots" (tap or hold)
+        boolean wantShotStream = feedHeld;
+        boolean wantAnyShot    = wantShotStream;
+
+        // ---- Start a shot if conditions are right ----
+        if (!shotInProgress && wantAnyShot && spunUp && dwellOk && !indexerStepping) {
+            indexer.startStepForShot();
+            shotInProgress = true;
+            // teleop mode does not use shotRequested latch
+            shotRequested = false;
+        }
+
+        // ---- Ramp control ----
+        if (shotInProgress) {
+            // During a feed step, ramp must be up
+            setRampEngaged(true);
+        } else if (rt && spunUp) {
+            // Between shots: keep ramp up as long as RT is held and we’re spun up
+            setRampEngaged(true);
+        } else {
+            // No active shot, no fire request => ramp down
+            setRampEngaged(false);
+        }
+
+        // ---- Shooter power / idle control ----
+        // Shooter should spin while RT held or while a shot is in progress.
+        boolean fireDemand = rt || shotInProgress;
+
+        if (fireDemand) {
+            // Keep spinning to target; do NOT start idle timer
+            runToTarget();
+            holdReleaseStartMs = 0L;
+        } else {
+            // No pending shots and RT not held: maybe spin down
+            if (targetPower > Constants.Shooter.IDLE_POWER) {
+                if (holdReleaseStartMs == 0L) {
+                    holdReleaseStartMs = now;
+                }
+                if (now - holdReleaseStartMs >= Constants.Shooter.HOLD_AFTER_RELEASE_MS) {
+                    idle();
+                    spinStartMs = 0L;  // force fresh spin-up next time
+                }
+            } else {
+                holdReleaseStartMs = 0L;
+                spinStartMs = 0L;
+            }
+        }
+
+        // Remember RT for the rising-edge logic
+        triggerPrev = rt;
     }
 
     /**

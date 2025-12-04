@@ -152,6 +152,7 @@ public final class Constants {
 
         public static final double IDLE_POWER   = 0.15; // always-on idle to reduce inrush
         public static final double TARGET_POWER = 1.0; // open-loop target for shots
+        public static final double TARGET_POWER_REDUCED = TARGET_POWER * 0.9; // reduced fire power
 
         public static final double RAMP_RETRACTED = 0.7; // servo position for safe idle
         public static final double RAMP_ENGAGED   = 0.49; // servo position to feed S0 into shooter

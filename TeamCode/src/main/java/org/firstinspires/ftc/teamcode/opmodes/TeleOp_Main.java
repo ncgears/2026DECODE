@@ -272,13 +272,10 @@ public class TeleOp_Main extends OpMode {
             }
         }
 
-        // LT: single manual step (disabled while reindexing or unjamming)
-        boolean ltNow  = g2.left_trigger > 0.5;
-        boolean ltEdge = ltNow && !lastG2LT;
-        lastG2LT       = ltNow;
-        if (!reindexMode && !unjamActive && ltEdge && !indexer.isStepping()) {
-            indexer.startStep();
-        }
+        // LT: feed into shooter (decoupled from RT-controlled spin)
+        boolean ltNow    = g2.left_trigger > 0.5;
+        lastG2LT         = ltNow; // edge no longer used here, but keep state reset
+        boolean feedHeld = ltNow && !reindexMode && !unjamActive;
 
         // B: clear queue + rescan, or cycle motif when LB held
         boolean bNow  = g2.b;
@@ -320,15 +317,27 @@ public class TeleOp_Main extends OpMode {
             shooter.resetFireControl();
         }
 
-        // Shooter shot sequence on g2 RT
-        boolean shootTrigger       = g2.right_trigger > 0.5;
-        boolean autoAdvanceEnabled = !shootTrigger && !reindexMode && !unjamActive;
+        // Shooter: RT = spin + ramp, LT = feed into shooter
+        boolean fireHeld           = g2.right_trigger > 0.5;
 
-        // While not reindexing/unjamming, allow queue to auto-fill as in Test_Intake_Indexer
+        // Hold LB to use reduced target power (10% down)
+        boolean reducedPower       = g2.left_bumper;
+
+        // Disable auto-advance while we are actively feeding or firing
+        boolean autoAdvanceEnabled = !fireHeld && !feedHeld && !reindexMode && !unjamActive;
+
+        // Tell shooter which power profile to use this loop
+        shooter.setReducedPowerMode(reducedPower);
+
+        // While not reindexing/unjamming/feeding, allow queue to auto-fill as in Test_Intake_Indexer
         handleIndexerAutoAdvance(autoAdvanceEnabled);
 
-        shooter.handleRightTrigger(shootTrigger, indexer);
+        // New decoupled teleop fire control:
+        //  - fireHeld (RT) spins shooter + manages ramp
+        //  - feedHeld (LT) actually advances the indexer (startStepForShot)
+        shooter.handleTeleopFire(fireHeld, feedHeld, indexer);
         shooter.loop();
+
 
         // ==== Queue / intake gating and motif rotation ====
 
