@@ -274,7 +274,11 @@ public class TeleOp_Main extends OpMode {
 
         // LT: feed into shooter (decoupled from RT-controlled spin)
         boolean ltNow    = g2.left_trigger > 0.5;
-        lastG2LT         = ltNow; // edge no longer used here, but keep state reset
+        boolean ltEdge   = ltNow && !lastG2LT;
+        lastG2LT       = ltNow;
+        if (!reindexMode && !unjamActive && ltEdge && !indexer.isStepping()) {
+            indexer.startStep();
+        }
         boolean feedHeld = ltNow && !reindexMode && !unjamActive;
 
         // B: clear queue + rescan, or cycle motif when LB held
