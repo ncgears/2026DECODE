@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.Arclength;
 import com.acmerobotics.roadrunner.MecanumKinematics;
 import com.acmerobotics.roadrunner.MinVelConstraint;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Pose2dDual;
 import com.acmerobotics.roadrunner.PosePath;
@@ -61,7 +62,7 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
 
     // How many notes to shoot per cycle.
     public static int SHOTS_PER_CYCLE = 3;
-    public static int MAX_STACKS      = 1;
+    public static int MAX_STACKS      = 3;
 
     @Override
     protected Action buildRoutine(MecanumDrive drive,
@@ -142,6 +143,7 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
 
             // Compute a pre-approach pose SPIKE_APPROACH_OFFSET farther from the wall.
             double approachSign = Math.signum(stackPose.position.y); // +1 for red wall, -1 for blue wall
+            SPIKE_APPROACH_OFFSET += (autoMode == AutoMode.RED2 || autoMode == AutoMode.BLUE2) ? 12 : 0;
             double preX = stackPose.position.x; // + approachSign * SPIKE_APPROACH_OFFSET;
             double preY = startPose.position.y - approachSign * SPIKE_APPROACH_OFFSET;
 
@@ -158,7 +160,7 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
 
             VelConstraint vel =
                     new MinVelConstraint(Arrays.asList(
-                            drive.kinematics.new WheelVelConstraint(8),
+                            drive.kinematics.new WheelVelConstraint(6),
                             new AngularVelConstraint(Constants.RoadRunner.MAX_ANG_VEL)
                     ));
 
@@ -226,17 +228,19 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
                 }
             };
 
-//            sequence.add(new SequentialAction(
-//                    backToShoot,
-//                    rotateForMotif,
-//                    makeShootBurstAction(
-//                            shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "cycle" + (i + 1))
-//            ));
+            sequence.add(new SequentialAction(
+                    backToShoot,
+                    rotateForMotif,
+                    makeShootBurstAction(
+                            shooter, indexer, SHOTS_PER_CYCLE, alliance, autoMode, "cycle" + (i + 1))
+            ));
 
             currentPose = shootPose;
         }
+        Action loopIndexer = (packet) -> { runIndexerPreload(); return true; };
 
-        return new SequentialAction(sequence.toArray(new Action[0]));
+        return new ParallelAction(loopIndexer, new SequentialAction(sequence.toArray(new Action[0])));
+//        return new SequentialAction(sequence.toArray(new Action[0]));
     }
 
     @Override

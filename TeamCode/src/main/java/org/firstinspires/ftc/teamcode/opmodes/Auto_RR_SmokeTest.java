@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.util.AutoSelector.AutoMode;
  */
 @Config
 @Autonomous(name = "Auto_RR_SmokeTest", group = "RR")
-//@Disabled
+@Disabled
 public final class Auto_RR_SmokeTest extends BaseAutoRR {
 
     // Dashboard-tunable distances (inches).

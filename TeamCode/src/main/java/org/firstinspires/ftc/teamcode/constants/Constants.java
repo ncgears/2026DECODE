@@ -15,7 +15,7 @@ public final class Constants {
         public static final double IN_PER_TICK = 0.0019286;
         public static final double LAT_IN_PER_TICK = 0.0015982;
         public static final double TRACK_WIDTH_TICK = 6988.635359;
-        public static final double MAX_VEL = 30;
+        public static final double MAX_VEL = 50;
         public static final double MAX_ACCEL = 30;
         public static final double MAX_ANG_VEL = Math.PI;
         public static final double MAX_ANG_ACCEL = Math.PI;
@@ -83,12 +83,13 @@ public final class Constants {
 
     /** IMU (BNO055 in REV hub) orientation and output units. */
     public static final class IMUCfg {
-        public static final String NAME = "imu";  // RC config name
+        //imu = EH BNO055, imu2 = CH BHI260AP
+        public static final String NAME = "imu2";  // RC config name
         // Physical mounting as installed (logo up, USB forward)
         public static final RevHubOrientationOnRobot.LogoFacingDirection LOGO =
                 RevHubOrientationOnRobot.LogoFacingDirection.UP;
         public static final RevHubOrientationOnRobot.UsbFacingDirection USB =
-                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
+                (NAME == "imu2") ? RevHubOrientationOnRobot.UsbFacingDirection.LEFT : RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
         public static final AngleUnit HEADING_UNIT = AngleUnit.RADIANS;
     }
 
@@ -295,7 +296,7 @@ public final class Constants {
 
     /** Global Constants. */
     public static final class Global {
-        public static final boolean ENABLE_DASHBOARD_OPMODE = true; //enable "Dashboard Enable/Disable" opmode
+        public static final boolean ENABLE_DASHBOARD_OPMODE = false; //enable "Dashboard Enable/Disable" opmode
         public static final boolean ENABLE_TUNING_OPMODES = false; //enable all the tuning opmodes
     }
 

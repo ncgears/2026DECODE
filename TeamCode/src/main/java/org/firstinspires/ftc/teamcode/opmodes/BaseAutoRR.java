@@ -42,11 +42,11 @@ public abstract class BaseAutoRR extends LinearOpMode {
     // Shooting pose per AutoMode. Replace with real DECODE coordinates.
     public static double RED_SHOOT_X   = -48.0;
     public static double RED_SHOOT_Y   = 48.0;
-    public static double RED_SHOOT_HE  =  Math.toRadians(-45.0);
+    public static double RED_SHOOT_HE  =  Math.toRadians(135.0);
 
-    public static double BLUE_SHOOT_X  =  48.0;
-    public static double BLUE_SHOOT_Y  =  48.0;
-    public static double BLUE_SHOOT_HE = Math.toRadians(45.0);   // facing "back" toward blue goal
+    public static double BLUE_SHOOT_X  =  -48.0;
+    public static double BLUE_SHOOT_Y  =  -48.0;
+    public static double BLUE_SHOOT_HE = Math.toRadians(-135.0);   // facing "back" toward blue goal
 
     // ---- Spike stack geometry (DECODE) ----
     // translation: +x is toward blue, +y is toward obelisk
@@ -54,7 +54,7 @@ public abstract class BaseAutoRR extends LinearOpMode {
 
     // RED:
     public static double RED_SPIKE_Y = 48.0;          // 12" in from red goal wall
-    public static double RED_SPIKE1_X = -12.0;         // PPG spike (closest to goal)
+    public static double RED_SPIKE1_X = -14.0;         // PPG spike (closest to goal)
     public static double RED_SPIKE2_X = 12.0;         // PGP
     public static double RED_SPIKE3_X = 36.0;         // GPP
     public static double RED_SPIKE_HE = Math.toRadians(90.0);

@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.constants.Constants;
@@ -38,6 +39,7 @@ import java.util.List;
  */
 @Config
 @Autonomous(name = "Auto_DECODE_SweetSpot", group = "RR")
+@Disabled
 public final class Auto_DECODE_SweetSpot extends BaseAutoRR {
     private IntakeSubsystem intake;
     private IndexerSubsystem indexer;
