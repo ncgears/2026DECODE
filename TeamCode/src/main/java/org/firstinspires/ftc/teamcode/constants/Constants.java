@@ -176,10 +176,10 @@ public final class Constants {
         public static final String MOTOR    = "elev";     // HD Hex motor name
         public static final String LIMIT_SW = "elevlim";  // NC HIGH normal, LOW when triggered
 
-        public static final double POWER_UP   = 0.80;   // deploy
-        public static final double POWER_DOWN = -0.40;  // retract
+        public static final double POWER_UP   = 0.70;   // deploy
+        public static final double POWER_DOWN = -0.30;  // retract
 
-        public static final int RAMP_UP_MS   = 250; // soft-start ramp time up
+        public static final int RAMP_UP_MS   = 150; // soft-start ramp time up
         public static final int RAMP_DOWN_MS = 150; // soft-start ramp time down
 
         public static final int LOCKOUT_ENCODER_THRESHOLD = 14; // counts; above this => lockout other mechanisms

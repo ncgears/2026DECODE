@@ -5,9 +5,16 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.AngularVelConstraint;
+import com.acmerobotics.roadrunner.Arclength;
+import com.acmerobotics.roadrunner.MecanumKinematics;
+import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Pose2dDual;
+import com.acmerobotics.roadrunner.PosePath;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.VelConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
@@ -19,6 +26,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.AutoSelector.AutoMode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -49,7 +57,7 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
     private boolean lastStepDetectedColor = false;
 
     // How far “in front of” a spike we stage before driving straight into it.
-    public static double SPIKE_APPROACH_OFFSET = 8.0;   // inches along +X/-X direction
+    public static double SPIKE_APPROACH_OFFSET = 12.0;   // inches along +X/-X direction
 
     // How many notes to shoot per cycle.
     public static int SHOTS_PER_CYCLE = 3;
@@ -133,14 +141,12 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
             Pose2d stackPose = stacks[i];
 
             // Compute a pre-approach pose SPIKE_APPROACH_OFFSET farther from the wall.
-            double approachSign = Math.signum(stackPose.position.x); // +1 for red wall, -1 for blue wall
-            double preX = stackPose.position.x + approachSign * SPIKE_APPROACH_OFFSET;
-            double preY = startPose.position.y; // + approachSign * SPIKE_APPROACH_OFFSET;
+            double approachSign = Math.signum(stackPose.position.y); // +1 for red wall, -1 for blue wall
+            double preX = stackPose.position.x; // + approachSign * SPIKE_APPROACH_OFFSET;
+            double preY = startPose.position.y - approachSign * SPIKE_APPROACH_OFFSET;
 
             Pose2d preApproach = new Pose2d(
-//                    new Vector2d(preX, preY),
-                    new Vector2d(-6.0, 48.0),
-                    //TODO: This robot is moving -6,+48 from 0,0 origin which is acting like the starting location of the robot
+                    new Vector2d(preX, preY),
                     stackPose.heading
             );
 
@@ -148,10 +154,16 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
             Action driveToStackPre = drive.actionBuilder(currentPose)
                     .strafeToSplineHeading(preApproach.position,preApproach.heading)
                     .build();
-            sequence.add(driveToStackPre); //temporarily add this to stack sequence for debug
+//            sequence.add(driveToStackPre); //temporarily add this to stack sequence for debug
+
+            VelConstraint vel =
+                    new MinVelConstraint(Arrays.asList(
+                            drive.kinematics.new WheelVelConstraint(8),
+                            new AngularVelConstraint(Constants.RoadRunner.MAX_ANG_VEL)
+                    ));
 
             Action driveIntoStack = drive.actionBuilder(preApproach)
-                    .strafeToSplineHeading(stackPose.position,stackPose.heading)
+                    .strafeToSplineHeading(stackPose.position,stackPose.heading,vel)
                     .build();
 
             Action enableIntake = new Action() {
@@ -190,10 +202,10 @@ public final class Auto_DECODE_Main extends BaseAutoRR {
             };
 
             sequence.add(new SequentialAction(
-//                    driveToStackPre,
-//                    enableIntake,
-//                    driveIntoStack,
-//                    disableIntake
+                    driveToStackPre,
+                    enableIntake,
+                    driveIntoStack,
+                    disableIntake,
                     noop
             ));
 

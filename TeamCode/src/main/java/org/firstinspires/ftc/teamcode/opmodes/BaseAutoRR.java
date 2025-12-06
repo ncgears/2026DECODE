@@ -53,25 +53,25 @@ public abstract class BaseAutoRR extends LinearOpMode {
     // heading: obelisk at 180, red at +145, blue at -145
 
     // RED:
-    public static double RED_SPIKE_X = -48.0;          // 24" in from red goal wall
-    public static double RED_SPIKE1_Y = 12.0;         // PPG spike (closest to goal)
-    public static double RED_SPIKE2_Y = -12.0;         // PGP
-    public static double RED_SPIKE3_Y = -36.0;         // GPP
-    public static double RED_SPIKE_HE = Math.toRadians(-90.0);
-    public static double RED_HUMAN_X = -62.0;
-    public static double RED_HUMAN_Y = 63.0;
-    public static double RED_HUMAN_HE = Math.toRadians(-90.0);
+    public static double RED_SPIKE_Y = 48.0;          // 12" in from red goal wall
+    public static double RED_SPIKE1_X = -12.0;         // PPG spike (closest to goal)
+    public static double RED_SPIKE2_X = 12.0;         // PGP
+    public static double RED_SPIKE3_X = 36.0;         // GPP
+    public static double RED_SPIKE_HE = Math.toRadians(90.0);
+    public static double RED_HUMAN_X = 63.0;
+    public static double RED_HUMAN_Y = 62.0;
+    public static double RED_HUMAN_HE = Math.toRadians(90.0);
 
 
     // BLUE
-    public static double BLUE_SPIKE_X =  48.0;         // 24" in from blue goal wall
-    public static double BLUE_SPIKE1_Y =  12.0;        // PPG
-    public static double BLUE_SPIKE2_Y = -12.0;        // PGP
-    public static double BLUE_SPIKE3_Y = -36.0;        // GPP
-    public static double BLUE_SPIKE_HE = Math.toRadians(90.0);
-    public static double BLUE_HUMAN_X = 62.0;
-    public static double BLUE_HUMAN_Y = 63.0;
-    public static double BLUE_HUMAN_HE = Math.toRadians(90.0);
+    public static double BLUE_SPIKE_Y =  -48.0;         // 24" in from blue goal wall
+    public static double BLUE_SPIKE1_X = -12.0;        // PPG
+    public static double BLUE_SPIKE2_X = 12.0;        // PGP
+    public static double BLUE_SPIKE3_X = 36.0;        // GPP
+    public static double BLUE_SPIKE_HE = Math.toRadians(-90.0);
+    public static double BLUE_HUMAN_X = 63.0;
+    public static double BLUE_HUMAN_Y = -62.0;
+    public static double BLUE_HUMAN_HE = Math.toRadians(-90.0);
 
 
     // --- Motif detection shared by all RR autos ---
@@ -89,11 +89,11 @@ public abstract class BaseAutoRR extends LinearOpMode {
     public BaseAutoRR() {
         // translation: +x is toward blue, +y is toward obelisk
         // heading: obelisk at 180, red at +145, blue at -145
-        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-39.0, 64.0), Math.toRadians(-90.0)));
+        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-64.0, 39.0), Math.toRadians(90.0)));
 //        startPoses.put(AutoMode.RED1,  new Pose2d(new Vector2d(-48, 48.0), Math.toRadians(90.0)));
-        startPoses.put(AutoMode.RED2,  new Pose2d(new Vector2d(-55.5, 39.5), Math.toRadians(-165.0)));
-        startPoses.put(AutoMode.BLUE1, new Pose2d(new Vector2d(39.0, 64.0), Math.toRadians(90.0)));
-        startPoses.put(AutoMode.BLUE2, new Pose2d(new Vector2d(55.5, 39.5), Math.toRadians(165.0)));
+        startPoses.put(AutoMode.RED2,  new Pose2d(new Vector2d(-39.5, 55.5), Math.toRadians(165.0)));
+        startPoses.put(AutoMode.BLUE1, new Pose2d(new Vector2d(-64.0, -39.0), Math.toRadians(-90.0)));
+        startPoses.put(AutoMode.BLUE2, new Pose2d(new Vector2d(39.5, 55.5), Math.toRadians(-165.0)));
         startPoses.put(AutoMode.NONE,  new Pose2d(new Vector2d(0.0, 0.0), 0.0));
     }
 
@@ -308,15 +308,15 @@ public abstract class BaseAutoRR extends LinearOpMode {
         switch (alliance) {
             case RED:
                 return new Pose2d[]{
-                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE1_Y), RED_SPIKE_HE),
-                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE2_Y), RED_SPIKE_HE),
-                        new Pose2d(new Vector2d(RED_SPIKE_X, RED_SPIKE3_Y), RED_SPIKE_HE),
+                        new Pose2d(new Vector2d(RED_SPIKE1_X, RED_SPIKE_Y), RED_SPIKE_HE),
+                        new Pose2d(new Vector2d(RED_SPIKE2_X, RED_SPIKE_Y), RED_SPIKE_HE),
+                        new Pose2d(new Vector2d(RED_SPIKE3_X, RED_SPIKE_Y), RED_SPIKE_HE),
                 };
             case BLUE:
                 return new Pose2d[]{
-                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE1_Y), BLUE_SPIKE_HE),
-                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE2_Y), BLUE_SPIKE_HE),
-                        new Pose2d(new Vector2d(BLUE_SPIKE_X, BLUE_SPIKE3_Y), BLUE_SPIKE_HE),
+                        new Pose2d(new Vector2d(BLUE_SPIKE1_X, BLUE_SPIKE_Y), BLUE_SPIKE_HE),
+                        new Pose2d(new Vector2d(BLUE_SPIKE2_X, BLUE_SPIKE_Y), BLUE_SPIKE_HE),
+                        new Pose2d(new Vector2d(BLUE_SPIKE3_X, BLUE_SPIKE_Y), BLUE_SPIKE_HE),
                 };
             case NONE:
             default:
